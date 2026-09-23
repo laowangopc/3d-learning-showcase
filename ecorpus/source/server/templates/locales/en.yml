@@ -1,0 +1,436 @@
+---
+lang:
+  fr: French
+  en: English
+  es: Spanish
+labels:
+  authorize: Authorize
+  deny: Deny
+  revoke: Revoke
+  personalTokens: Personal tokens
+  oauthTokens: OAuth tokens
+  noAccess: no access
+  unavailable: not available for this family
+  scope: scope
+  optional: optional
+  scene: Scene
+  sceneTitle: scene title
+  selectFile: select a file
+  selectFile_s: select one or several files 
+  signin: Sign in
+  save: Save
+  username: Username
+  group: Group
+  groupMembers: Group Members
+  newGroup: New group
+  deletingAGroupIsPermanent: Deleting a group is permanent
+  email: Email
+  password: Password
+  showPassword: Show password
+  newPassword: New Password
+  forgottenPassword: Forgotten password
+  pagination: pagination
+  searchPlaceholder: search a scene
+  searchUserPlaceholder: search by name or email
+  ignoredIfMultipleScenes: ignored if multiple scenes are created at the same time
+  sortBy: Sort by
+  loginLink: Copy direct login link
+  sendLoginLink: Send a login link
+  sendOnboardingEmail: Send onboarding email
+  view: View
+  edit: Edit
+  editDefault: Edit (value is unchanged from default)
+  editModified: Edit (value has been changed from default)
+  properties: Properties
+  localization_one: Scene language
+  localization_other: Scene languages
+  setupLocalization: Default language
+  rights: Access rights
+  permission: Authorizations
+  defaultUser: Public access
+  anyUser: Authenticated access
+  language: UI Language
+  delete: Delete
+  restore: Restore
+  publicAccess: Public access
+  defaultAccess: Default access
+  copyright: "Copyright:"
+  role: Role
+  close: Close
+  createUser: Create a user
+  createClient: Register a client
+  clientName: Application name
+  clientId: Client ID
+  clientSecret: Client secret
+  redirectUris: Redirect URIs (one per line)
+  confidential: Confidential client (issues a secret)
+  confidentialClient: Confidential
+  publicClient: Public (PKCE)
+  clientRegistered: Client registered
+  clientSecretWarning: Copy the client secret now — it is hashed on the server and will never be shown again.
+  copy: Copy
+  copied: Copied
+  deletingAClientIsPermanent: Deleting a client revokes every token it issued
+  noClients: No OAuth client registered yet
+  lastModified: "Last modified"
+  totalScenesCount: Total scenes count
+  totalFilesCount: Total files count
+  totalDiskUsage: Total disk usage
+  buildId: Build ID
+  databaseSchema: Database schema version
+  show: show
+  sceneType: Scene type
+  advancedSearch: Advanced search
+  batchTags: Change selection's tags
+  batchAddTag: Add this tag to selected scenes
+  batchRmTag: Remove this tag from selected scenes
+  addTag: Add a tag
+  sceneName: Scene name
+  mine: Mine
+  all: All
+  success: Success
+  error: Error
+  taskTypes: Task types
+  allTasks: All tasks
+  rootOnly: Root tasks
+  noTasks: No tasks found.
+  noLogs: No logs.
+  warnings: Warnings
+  optimizeModel: Optimize models
+  childOf: Child of
+  showStatic: Show locked parameters
+  showChangedOnly: Show changed parameters only
+  public: Public
+  private: Private
+  size: "{{count}} scene"
+  size_plural: "{{count}} scenes"
+  addUser: Add user
+  addGroup: Add group
+
+buttons:
+  searchScene: search scenes
+  uploadScene: create a scene
+  uploadArchive: extract
+  useStandalone: use standalone mode
+  logout: Disconnect
+  next: "Next Page"
+  previous: "Previous Page"
+  archive: Archive
+  delete: Delete
+  editTags: Edit tags
+  showTags: Cancel edition
+  history: Scene History
+  download: Download this scene
+  downloadSelection: Download selected scenes
+  rename: Rename
+  cancel: Cancel
+  selectAll: Select all
+  deselectAll: Deselect all
+  submit: Send
+  create: Create
+  showActions: Show actions
+  getTaskArtifacts: Download task workspace
+
+fields:
+  name: name
+  author: author
+  mtime: last modification
+  ctime: creation date
+  rank: relevance
+  access: access rights
+  none: none
+  read: read
+  write: write
+  admin: administration
+  limit: Results per page
+  ascendingOrder: ascending order
+  descendingOrder: descending order
+  tag: tag name
+  removeSpecificAccess: remove specific access
+  showOnlyMyScenes: Only my scenes
+  myAccess: "Access rights:"
+  userRoles:
+    use: User
+    create: Creator
+    manage: Editor
+    admin: Administrator
+  owner: Owner
+  parent: Parent
+  scene: Scene
+  type: Type
+  status: Status
+  minLevel: Min level
+nav:
+  tokens: API tokens
+  tags: collections
+  login: connection
+  administration: administration
+  summary: summary
+  adminUsers: users
+  adminClients: OAuth clients
+  adminGroups: groups
+  adminStats: statistics
+  adminArchives: archives
+  reportBug: report a bug
+  documentation: project doc
+  license: Apache License
+  settings: Settings
+  userGroups: Groups
+  userArchives: Archives
+  tasks: tasks
+  overview: Overview
+  upload: upload
+
+onboarding:
+  import:
+    title: "Import your models"
+    lead: "Upload a 3D model file"
+    link: "Scene creation tutorial"
+  annotate:
+    title: "Annotate and enrich"
+    lead: "Open Voyager-Story and add articles, medias and annotations"
+    link: "Tutorial: adding content"
+  publish:
+    title: "Publish and share"
+    lead: "Manage access control lists and embed the viewer on your website"
+    link: "Publishing tutorial"
+  upload:
+    title: "Need help?"
+    lead: >
+      Drop your files in the area above or click to browse.
+    types: Accepted file types
+    glb:
+      title: "Single 3D model"
+      lead: >
+        A <code>.glb</code> (or <code>.gltf</code>) file creates a new scene with default
+        metadata.
+    optimize:
+      title: "Conversion &amp; optimization"
+      lead: >
+        Enable <i>Optimize models</i> to compress geometry and textures. Recommended for files over a few megabytes: the upload runs as a
+        background task and the resulting scene loads much faster in viewers.
+    zip:
+      title: "Archive upload"
+      lead: >
+        A <code>.zip</code> archive can contain one or several complete eCorpus scenes
+        (model files, articles, annotations and thumbnails). Scene names are taken from
+        the archive, so the name field above is ignored.
+  group:
+    title: "How groups work"
+    lead: >
+      Groups bundle <b>users</b> with <b>scenes</b> and grant them a shared access level
+      (<i>read</i>, <i>write</i> or <i>admin</i>). Add members on the left, then attach scenes
+      with the desired permission on the right. A user's effective rights are the most
+      permissive of their public, default, group and individual rights.
+    link: "Read the permissions documentation"
+  scenePermissions:
+    lead: >
+      No specific permission has been granted on this scene yet. Anyone matching the
+      <i>public</i> or <i>default</i> rules above can access it. Add a group or user below
+      to grant additional rights.
+  sceneTags:
+    lead: >
+      Tags help others discover this scene. They are also used to build collections on
+      the home page. Add a tag below — pick from existing suggestions to join a collection.
+  userGroups:
+    lead: >
+      Groups let an administrator grant the same access to several users at once.
+      They are managed by instance administrators — ask one to add you to the relevant
+      group if you need to collaborate on scenes you do not own.
+  archives:
+    lead: >
+      Archiving a scene removes it from search results and from your scenes list while
+      keeping its data on the server. Archived scenes can be restored at any time from
+      this page. The "Archive" button is available in any scene's settings.
+  tags:
+    lead: >
+      No tag has been created on this instance yet. Tags group scenes into <i>collections</i>
+      — they are added from each scene's settings page and become collection pages here.
+    link: "Tags and collections tutorial"
+  tagEmpty:
+    lead: >
+      This collection currently has no scene visible to you. The tag may have been
+      removed from every scene, or you may not have read access to the matching scenes.
+    link: "Browse all collections"
+  tasks:
+    lead: >
+      Tasks are background jobs run on your behalf by the server — typically scene
+      uploads, archive extractions or model optimisations. Each task records its logs
+      and a downloadable workspace you can use to troubleshoot failures.
+    link: "About background tasks"
+
+titles:
+  userTokens: API tokens
+  tokenCreated: Token created
+  authorizedApps: Authorized applications
+  authorize: Authorization request
+  myScenesSection: my scenes
+  gettingStarted: Getting started
+  myGroups: My groups
+  onboarding: "How it works"
+  homeHeader: 3D scenes management engine
+  mtimeScenesSection: Recently modified scenes
+  ctimeScenesSection: Recently added scenes
+  upload: upload
+  createScene: create a new scene
+  createOrUpdateScene: Create or update a scene
+  tools: Tools
+  search: Search
+  recoverPassword: Passwordless Sign In
+  userSettings: User Settings
+  userProfile: User Profile
+  changePassword: Change Password
+  sceneThumb: Preview image of {{what}}
+  history: Edition history
+  sceneData: Scene metadata
+  permissions: Access rights
+  archives: Archived Scenes
+  rename: Rename this scene
+  testEmail: "{{what}} email system test"
+  testEmailVerify: Additional verifications
+  userManager: Users management
+  oauthClients: OAuth clients
+  createOAuthClient: Register an OAuth client
+  groupManager: Groups management
+  adminHome: Administration Interface
+  serverStatistics: Instance Statistics
+  filesStatistics: Data statistics
+  modifiedToday: Scenes modified today
+  buildRef: Current version
+  uiGuidelines: UI guidelines
+  createdScenes: Created scenes
+  myTasks: My tasks
+  taskTree: Task tree
+  logs: Logs
+  config: Configuration
+  advancedConfiguration: Advanced configuration
+  taskData: Input data
+  taskOutput: Output data
+
+tooltips:
+  showPassword: Show the password's text
+  permissions: >
+    The default access for connected users can not be more restrictive than the public access.
+    The wider rights of default access rights and specific user rights applies.
+  sortBy: >
+    <b>Rank</b> orders results by relevance to the search query — it only makes sense
+    when a search term is set. Other criteria are time- or name-based and ignore the query.
+  myAccess: >
+    Restrict results to scenes on which you have at least this level of rights.
+    Administrators can leave this empty to list every scene on the instance.
+leads:
+  userTokens: >
+    API tokens let third-party services and scripts make authenticated requests on your behalf, without your password. They can be revoked at any time
+  scopeLadder: >
+    Each scope family is a ladder — a level includes every level below it (read < write < admin), so only the highest selected level is recorded
+  scopeHint: ○ = no access · fill = granted · click the selected level to remove it
+  noTokens: No API token
+  authorize: is requesting access to your eCorpus account, as
+  authorizedApps: >
+    Applications you allowed to access your account. As long as you stay signed in, they renew their access automatically without asking again. Revoking an application stops this renewal and invalidates the tokens it holds
+  noAuthorizedApps: No authorized application
+  revokeGrant: Revoke this application's access and its tokens
+  tokenCreated: >
+    Here is your new token. Copy it now: it will never be shown again
+  appLead: >
+    eCorpus is a database of 3D scenes using a rich scene editor shared
+    with the Smithsonian Institute's Digitization Project Office
+  passwordRecovery: >
+    Fill the form below to receive an email with a direct-login link
+  linkSent: >
+    A login link has been sent to this account's email address
+  noScenes: >
+    Looks like you don't own any scenes yet. Search public scenes made by others in this instance or create your own!
+  editScene: >
+    Modify this scene with Voyager-Story
+  showScene: >
+    Show this scene with Voyager-Explorer
+  showSceneProps: >
+    Show scene properties
+  noResults: >
+    No results. Maybe try to change your query?
+  archiveDelete: >
+    Archiving this scene makes it unreachable but it can still be restored by your instance administrator.
+  archiveRestore: >
+    You can restore this scene using the "restore" button. This will rename the scene. 
+  thumbnailFor: >
+    Image miniature pour {{what}}
+  tours_zero: "no tours"
+  tours_one: "one tour"
+  tours_other: "{{count}} tours"
+  articles_zero: "no articles"
+  articles_one: "one article"
+  articles_other: "{{count}} articles"
+  annotations_zero: "no annotations"
+  annotations_one: "one annotation"
+  annotations_other: "{{count}} annotations"
+  sceneCounts: >
+    This scene has $t(leads.tours, {"count": {{tours}} }), $t(leads.articles, {"count": {{articles}} }) and $t(leads.annotations, {"count": {{annotations}}})
+  noMetaAvailable: >
+    No metadata could be extracted from this scene.
+  historyEdition: |
+    This is the scene's history of changes, aggregated by day. Unfold the groups with the <span class="text-primary">+</span> icons to get more details.
+    Click on <code class="text-primary">restore to</code> to add a set of changes that will set the scene's content to what it was at this point.
+    No history entry will be deleted in this operation : changes will only be appended.
+  canNotChangeSelfAccess: >
+    You can not change your own access rights to this scene. Ask an instance administrator or another user to do so.
+  rename: >
+    Changing a scene's name will break all existing links pointing to it.
+    Proceed with care!
+  testEmail: >
+    This is a test message from <a href="https://{{hostname}}/ui/">{{hostname}}</a>.
+    If it lands in your inbox, your email setup is probably OK.
+  testEmailDKIM: >
+    To be extra safe and prevent (most) emails being flagged as SPAM, check the DKIM signature using tools like Google's 
+    <a href="https://postmaster.google.com">Postmaster Tools</a>.
+  sendTestEmail: Send a test email
+  uiGuidelines: Open the UI components reference page
+  usersList: Users {{start}}-{{end}}/{{total}}
+  groupsList: Groups {{start}}-{{end}}/{{total}}
+  noArchives: No archived scenes
+  noGroups: This user has not been added to any group
+  poweredByECorpus: Powered by <a target="_blank" href="https://ecorpus.eu">eCorpus</a> under the <a href="https://github.com/Holusion/eCorpus/blob/main/LICENSE.md">Apache-2.0</a> license
+  uploadFiles: Drop your files here
+  uploadMixedContent: >
+    Uploaded files are a mix of scenes archive and regular files. Mixed content can't be handled in a single operation.
+  uploadName: >
+    This will be the URL name of the created scene.
+    It is language-independent.
+  uploadLanguage: The scene's default language
+  uploadOptimize: Optimize 3D models for better performance. This may take a bit more time.
+  uploadErrors: >
+    Some errors were encountered while processing the uploaded files. Please check errors above.
+  envLocked: "{{what}} can't be changed because its value comes from the environment"
+  motd: |
+    <p>
+      follow eCorpus development and report issues on <b><a href="https://github.com/Holusion/eCorpus">GitHub</a></b>.
+    </p>
+  anonymousGreeting: |
+    <p>Welcome to <a href="https://ecorpus.eu/en/doc/">eCorpus</a>.</p>
+  anonymousGreeting_branded: |
+    <p>Welcome to <a href="https://ecorpus.eu/en/doc/">Corpus</a> — {{brand}}.</p>
+  howToAddCopyright: |
+    This scene has no copyright. Add one in the edit interface
+  useStandalone: >
+    Try out <b>Voyager</b>'s "standalone" mode to discover its features at your own pace.
+ui:
+  by: by
+  created: Created
+  modified: Modified
+  deleted: Deleted
+info:
+  changeDay: "Changes on {{date}}"
+  restoreTo: "Restore to {{point}}"
+  viewAtThisPoint: View scene at this point
+  showDetails: show details
+  hideDetails: hide details
+  etAl_one: "and {{count}} more"
+  etAl_other: "and {{count}} more"
+errors:
+  generic: Unknown Error
+  "Username not provided": Username not provided
+  "Password not provided": Password not provided
+  "Bad password": Invalid password
+  "Username not found": Invalid Username
+  "requireCreate": "{{what}} requires \"create\" rights"
+  "requireUser": "Authentication is required for {{what}}"

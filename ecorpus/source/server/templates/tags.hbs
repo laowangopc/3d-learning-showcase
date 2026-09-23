@@ -1,0 +1,45 @@
+
+<h1>{{#if brand}}{{ brand }}: {{/if}}{{i18n "nav.tags"}}</h1>
+<div class="grid-content">
+  {{#unless embedded}}
+  <form class="form-control">
+    <h3 id="tags-search-title">{{i18n "titles.search" }}</h3>
+    <div class="form-item" style="display:flex; margin-bottom:10px; flex-grow: 1">
+      <input class="search-box-input" type="search" name="match" id="tags-search" aria-labelledby="tags-search-title"
+        value="{{match}}">
+      <button class="btn btn-main" style="margin-top:0" type="submit" aria-label="{{i18n "buttons.searchScene"}}"><ui-icon
+          name="search"></ui-icon></button>
+    </div>
+  </form>
+  {{/unless}}
+  <section role="list" class="tags-grid">
+
+  {{#if tags.length }}
+    {{#each tags}}
+      {{>tagPreview }}
+    {{/each}}
+    <div style="grid-column: 1 / end;">
+      {{#with pager}}
+      {{> pager }}
+      {{/with}}
+    </div>
+  {{else}}
+    {{#if match }}
+      <div style="grid-column: 1 / end;">
+        {{#with pager}}
+        {{> pager }}
+        {{/with}}
+      </div>
+    {{else}}
+      <aside class="help-block" style="grid-column: 1 / end;">
+        <ui-icon name="info"></ui-icon>
+        <div class="help-block-content">
+          <p>{{{i18n "onboarding.tags.lead"}}}</p>
+          <a href="https://ecorpus.eu/{{lang}}/doc/tutorials/import.html#add-scene-to-a-collection">{{i18n "onboarding.tags.link"}} →</a>
+        </div>
+      </aside>
+    {{/if}}
+
+  {{/if}}
+  </section>
+</div>

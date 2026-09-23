@@ -1,0 +1,130 @@
+import { Request, Response } from "express";
+import {js2xml} from "xml-js";
+import { BadRequestError, NotFoundError } from "../../utils/errors.js";
+import { getHost, getVfs } from "../../utils/locals.js";
+
+interface EmbedParams{
+  url: string,
+  width: number,
+  height: number,
+  title: string,
+  author?: string,
+}
+type CommonEmbedParams = Omit<EmbedParams, "url"|"title"|"author">&Partial<EmbedParams>;
+
+const isEmbedParams = (opts: CommonEmbedParams): opts is EmbedParams =>{
+  return typeof opts.url === "string" && typeof opts.title === "string";
+}
+
+/**
+ * RegExp to match pages that can be embedded.
+ * History views can't be embedded because we might compress the histories in the future, making those links unreliable.
+ * We'd need some kind of "history tag" to make an entry permanent and allow a link to it
+ */
+const embed_re = /^\/(?:ui\/)?(?:scenes\/(?<scene>[^/]+)(?:\/view)?|tags\/(?<tag>[^/]+))\/?$/;
+
+/**
+ * Determines if a route points to an embeddable (oembed-compatible) resource.
+ * @returns
+ */
+export function isEmbeddable(pathname: string): boolean {
+  return embed_re.test(pathname);
+}
+
+
+const asIframe = ({url, title, width, height}:EmbedParams)=>{
+  const attrs = {
+    name: "eCorpus Voyager",
+    title,
+    src: url,
+    width,
+    height,
+    allow: "fullscreen (src); autoplay; xr; xr-spatial-tracking;",
+    //allowfullscreen: true, //"allow" directive alone _should_ be picked up by all browsers
+  }
+
+  const strAttrs = Object.entries(attrs).map(([attr, value])=>{
+    if(typeof value === "boolean") return attr;
+    else return `${attr}="${value}"`;
+  }).join(" ");
+  return `<iframe ${strAttrs}></iframe>`;
+}
+
+const asJSON = (params: EmbedParams)=>JSON.stringify({
+	"version": "1.0",
+	"type": "rich",
+	"provider_name": new URL("/", params.url).hostname,
+	"provider_url": new URL("/", params.url).toString(),
+	"width": params.width,
+	"height": params.height,
+	"title": params.title,
+	"author_name": params.author,
+	"html": asIframe(params),
+});
+
+const asXML = (params: EmbedParams)=>{
+  const doc: Record<string, any> = {
+    _declaration: { _attributes: { version: "1.0", encoding: "utf-8", standalone: "yes" } },
+    oembed: {
+      version: { _text: "1.0" },
+      type: { _text: "rich" },
+      provider_name: { _text: new URL("/", params.url).hostname },
+      provider_url: { _text: new URL("", params.url).toString() },
+      width: { _text: params.width },
+      height: { _text: params.height },
+      title: { _text: params.title },
+      html: { _text: asIframe(params) },
+    },
+  };
+  if(params.author) doc.oembed.author_name = { _text: params.author };
+  return js2xml(doc, {compact: true});
+}
+
+export async function getEmbed(req: Request, res: Response){
+  let vfs = getVfs(req);
+  const {format='json', url, maxwidth='800', maxheight='450'} = req.query;
+  if(format !== "json" && format !== "xml") return res.status(501).send("Not Implemented");
+  if(!url || typeof url !== "string") throw new BadRequestError(`No embed URL query provided`);
+
+  const opts :CommonEmbedParams = {
+    width: parseInt(maxwidth as string),
+    height: parseInt(maxheight as string),
+  }
+
+  let pathname :string;
+  try{
+    const target = new URL(decodeURIComponent(url));
+    pathname = decodeURIComponent(target.pathname);
+  }catch(e){
+    //Consumers of this endpoint routinely send values that are over-encoded, relative,
+    //or not URLs at all. Both new URL() and decodeURIComponent() throw on those and an
+    //uncaught throw here would be reported as an internal error.
+    throw new BadRequestError(`Not a valid embed URL: ${url}`);
+  }
+  const m = embed_re.exec(pathname);
+  if(m?.groups!.scene){
+    let scene = await vfs.getScene(m.groups!.scene);
+    if(scene.public_access =="none"){
+      throw new NotFoundError(`No public embeddable resource at ${url}`);
+    }
+    let meta =  await vfs.getSceneMeta(scene.name);
+    Object.assign(opts, {
+      url: new URL(`/ui/scenes/${encodeURIComponent(scene.name)}/view`, getHost(req)).toString(),
+      title: meta.primary_title ?? scene.name,
+      author: scene.author,
+    });
+  }else if(m?.groups!.tag){
+    let tag = await vfs.getTag(m.groups.tag, null);
+    if(!tag.length) throw new NotFoundError(`No tag found with name ${m.groups.tag}`);
+    Object.assign(opts, {
+      url: new URL(`/ui/tags/${encodeURIComponent(m.groups.tag)}`, getHost(req)).toString(),
+      title: m.groups.tag,
+    });
+  }
+
+  if(isEmbedParams(opts)){
+    return res.set("Content-Type", format === "json"?"application/json":"text/xml"+"; charset=utf-8").status(200).send(format == "json"? asJSON(opts): asXML(opts));  
+  }else{
+    throw new NotFoundError(`No public embeddable resource at ${url}`);
+  }
+}

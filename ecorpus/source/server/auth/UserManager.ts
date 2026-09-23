@@ -1,0 +1,1232 @@
+import fs from "fs/promises";
+import crypto, { randomBytes } from "crypto";
+import path from "path";
+import {promisify} from "util";
+
+import uid, { Uid } from "../utils/uid.js";
+import { BadRequestError, ConflictError, InternalError, NotFoundError, UnauthorizedError } from "../utils/errors.js";
+import User, {SafeUser, StoredUser, UserLevels, UserRole, UserRoles} from "./User.js";
+
+import openDatabase, {Database, DbController, DbOptions} from "../vfs/helpers/db.js";
+import errors, { expandSQLError } from "../vfs/helpers/errors.js";
+import Group, { StoredGroup } from "./Group.js";
+import { ApiToken, CODE_LIFETIME, deserializeToken, formatToken, hashSecret, isValidScope, makeSecret, parseToken, StoredToken, verifySecret } from "./Token.js";
+import { group } from "console";
+
+
+const scrypt :(
+  password :crypto.BinaryLike, 
+  salt :crypto.BinaryLike, 
+  keylen :number,  
+  options: crypto.ScryptOptions
+)=>Promise<Buffer> = promisify(crypto.scrypt);
+
+interface ParsedPassword {
+  algo :string;
+  params :{[key: string]: number}
+  salt :string;
+  hash :string;
+}
+
+/**
+ * Ordered access levels — the in-memory currency of ACL resolution and every
+ * authorization decision. Comparisons are plain numeric
+ * (`None < Read < Write < Admin`), and the values match the integers stored in
+ * the `*_acl.access_level` / `scenes.public_access` / `scenes.default_access`
+ * columns. The HTTP and template boundary speaks the {@link AccessType} string
+ * instead: parse with {@link toAccessLevel}, serialize with
+ * {@link fromAccessLevel}.
+ */
+export enum AccessLevel {
+  None = 0,
+  Read = 1,
+  Write = 2,
+  Admin = 3,
+}
+
+/** Wire form of an {@link AccessLevel}, indexed by it */
+export const AccessTypes = [
+  "none",
+  "read",
+  "write",
+  "admin"
+] as const;
+
+export type AccessType = typeof AccessTypes[number];
+
+export function fromAccessLevel(l: AccessLevel): AccessType{
+  return AccessTypes[l];
+}
+
+/** Parse the wire form. `null` — an ACL patch's "remove this entry" value — parses as None */
+export function toAccessLevel(a: AccessType|null): AccessLevel{
+  return Math.max(0, AccessTypes.indexOf(a as AccessType));
+}
+
+/**
+ * A valid wire value for an access level. `null` is accepted: per RFC7396 it
+ * is how an ACL patch expresses "remove this entry" (see {@link UserManager.grant}).
+ */
+export function isAccessType(type :any) :type is AccessType|null{
+  return type === null || AccessTypes.indexOf(type) !== -1;
+}
+
+export type AccessMap = {[id: `${number}`|string]:AccessType|null};
+
+export interface UserQuery {
+  offset?: number;
+  limit?: number;
+  match?: string;
+  state?: 'all'|'active'|'disabled';
+}
+
+export const any_id = 1 as const;
+export const default_id = 0 as const;
+
+export interface UserSession {
+  /** Management handle: safe to expose, the session credential never leaves the cookie */
+  id: number;
+  uid: number;
+  created: Date;
+  expires: Date;
+  lastSeen: Date;
+  userAgent: string | null;
+}
+
+interface StoredSession {
+  session_id: string | number;
+  fk_user_id: string | number;
+  created_at: Date;
+  expires_at: Date;
+  last_seen: Date;
+  user_agent: string | null;
+}
+
+function deserializeSession(s: StoredSession): UserSession {
+  return {
+    id: typeof s.session_id === "string" ? parseInt(s.session_id, 10) : s.session_id,
+    uid: typeof s.fk_user_id === "string" ? parseInt(s.fk_user_id, 10) : s.fk_user_id,
+    created: s.created_at,
+    expires: s.expires_at,
+    lastSeen: s.last_seen,
+    userAgent: s.user_agent,
+  };
+}
+
+/** sha256 digest of a session credential. Sessions are stored hashed (like tokens) so a database leak doesn't yield usable credentials */
+function hashSid(sid: string): Buffer {
+  return crypto.createHash("sha256").update(sid).digest();
+}
+
+export interface OAuthClient {
+  id: number;
+  name: string;
+  redirectUris: string[];
+  /** Confidential clients hold a secret; public clients (eg. CLIs) rely on PKCE only */
+  confidential: boolean;
+  created: Date;
+}
+
+/**
+ * A user's persisted consent for a client: the union of every scope set they
+ * approved. Lets the authorize endpoint re-issue codes without a consent page.
+ */
+export interface OAuthGrant {
+  clientId: number;
+  clientName: string;
+  scope: string[];
+  created: Date;
+  updated: Date;
+}
+
+interface StoredClient {
+  client_id: string | number;
+  name: string;
+  secret_hash: Buffer | null;
+  redirect_uris: string[];
+  created_at: Date;
+}
+
+function deserializeClient(c: StoredClient): OAuthClient {
+  return {
+    id: typeof c.client_id === "string" ? parseInt(c.client_id, 10) : c.client_id,
+    name: c.name,
+    redirectUris: c.redirect_uris,
+    confidential: c.secret_hash != null,
+    created: c.created_at,
+  };
+}
+
+export interface AuthorizationCode {
+  clientId: number;
+  uid: number;
+  scope: string[];
+  redirectUri: string;
+  codeChallenge: string;
+  expires: Date;
+}
+
+export default class UserManager extends DbController {
+
+  static async open(opts :DbOptions){
+    let db = await openDatabase(opts);
+    let u = new UserManager(db);
+    return u;
+  }
+  /**
+   * Checks if username is acceptable. Used both as input-validation and deserialization check
+   * @see addUser()
+   * @see UserManager.deserialize() 
+   */
+  static isValidUserName(username :string){
+    return UserManager.isValid.username(username);
+  }
+  
+  static isValidPasswordHash(hash :string) :boolean{
+    try{
+      UserManager.parsePassword(hash);
+    }catch(e){
+      return false;
+    }
+    return true;
+  }
+
+  static isValid = {
+    username(username: string | any) {
+      return typeof username === "string" && /^[-\w]{3,40}$/.test(username)
+    },
+    password(password: string | any) {
+      return typeof password === "string" && 8 <= password.length
+    },
+    email(email:string|any){
+      return typeof email === "string" && /^[^@]+@[^@]+\.[^@]+$/.test(email);
+    }
+  } as const;
+  
+  /**
+   * 
+   * @param pw a password string as encoded by formatPassword()
+   * @returns 
+   */
+  static parsePassword(pw :string) :ParsedPassword{
+    let m  = /^\$(?<algo>scrypt)(?:\$(?<params>(?:[^\$=]+=[^\$]+\$)*))?(?<salt>[^\$]+)\$(?<hash>[^\$]+)$/.exec(pw);
+    if(!m?.groups) throw new Error("Malformed password string");
+    let {algo, salt, hash, params:rawParams} = m.groups;
+    //@ts-ignore
+    let params = rawParams.split("$").slice(0,-1).reduce((params :{[key :string] :number}, param :string)=> {
+      let [key, value] = param.split("=");
+      return {...params, [key]: parseInt(value, 10)};
+    },{});
+    return {algo, salt, hash, params};
+  }
+
+  /**
+   * Encode a clear-text password into a string. 
+   * Includes all encoding parameters in the string with a randomly generated salt
+   */
+  static async formatPassword(pw :string) :Promise<string>{
+    let salt = crypto.randomBytes(16).toString("base64url");
+    let length = 64;
+    let params = {N: 16384, r: 8, p: 1 };
+    let key = await scrypt(pw, salt, length,  params);
+    return `$scrypt$${Object.entries(params).map(([key, value])=>(`${key}=${value}`)).join("$")}$${salt}$${key.toString("base64url")}`;
+  }
+
+  /**
+   * 
+   * @param password clear-text password
+   * @param hash encoded string to compare against
+   */
+  static async verifyPassword(password :string, hash :string) :Promise<boolean>{
+    let {algo, salt, hash:storedHash, params} = UserManager.parsePassword(hash);
+    if(algo != "scrypt") throw new Error(`bad password algorithm : ${algo}`);
+    let key = await scrypt(password, salt, Buffer.from(storedHash, "base64url").length, params);
+    return key.toString("base64url") == storedHash;
+  }
+  /**
+   * parse a string (eg. made by `UserManager.serialize()`) into a valid user.
+   * Performs necessary validity checks
+   * Any errors will try to hide sensitive data like the user's password
+   * @see UserManager.serialize()
+   */
+  static deserialize(u :StoredUser) :User{
+    return  new User({
+      username: u.username, 
+      email: u.email??undefined,
+      uid: u.user_id,
+      level: UserRoles[u.level],
+      password: u.password, 
+    });
+  }
+
+  static serialize({username, email, password, uid, level} :User) :StoredUser{
+    return {
+      username,
+      email,
+      password,
+      user_id: uid,
+      level: UserRoles.indexOf(level),
+    };
+  }
+
+
+  /**
+   * Write user data to disk. use addUser to generate a valid new user
+   * @param user 
+   */
+  async write(user :User) :Promise<void>{
+    let u = UserManager.serialize(user);
+    await this.db.run(`
+      INSERT INTO users (user_id, username, email, password, level)
+      VALUES ($1, $2, $3, $4, $5)
+    `, [
+      u.user_id,
+      u.username,
+      u.email ?? null,
+      u.password ?? null,
+      u.level,
+    ]);
+  }
+
+  /**
+   * Get a user using its unique identifier
+   * @throws {NotFoundError} if user_id is not found
+   */
+  async getUserById(user_id: number) :Promise<User>{
+    let u = await this.db.all<StoredUser>(`SELECT * FROM users WHERE user_id = $1 LIMIT 1`, [ user_id ]);
+    if(!u.length) throw new NotFoundError(`no user with user_id ${user_id}`);
+    return UserManager.deserialize(u[0]);
+  }
+
+  /**
+   * Also allow requests by username or email
+   * @throws {BadRequestError} is username is invalid
+   * @throws {NotFoundError} is username is not found
+   */
+  async getUserByName(username : string) :Promise<User>{
+    if(!UserManager.isValidUserName(username) && username.indexOf("@")== -1) throw new BadRequestError(`Invalid user name`);
+    let u = (await this.db.all<StoredUser>(`SELECT * FROM users WHERE username = $1 OR email = $1`, [ username ]))[0];
+    if(!u) throw new NotFoundError(`no user with username ${username}`);
+    return UserManager.deserialize(u);
+  }
+  
+  /**
+   * Validate pagination parameters for getUsers().
+   * Mirrors ScenesVfs._validateSceneQuery() for consistency.
+   */
+  static _validateUserQuery(q :Readonly<UserQuery|any>) :UserQuery{
+    if(typeof q.limit !== "undefined"){
+      if(typeof q.limit != "number" || Number.isNaN(q.limit) || !Number.isInteger(q.limit)) throw new BadRequestError(`When provided, limit must be an integer`);
+      if(q.limit <= 0) throw new BadRequestError(`When provided, limit must be >0`);
+      if(100 < q.limit) throw new BadRequestError(`When provided, limit must be <= 100`);
+    }
+    if(typeof q.offset !== "undefined"){
+      if(typeof q.offset != "number" || Number.isNaN(q.offset) || !Number.isInteger(q.offset)) throw new BadRequestError(`When provided, offset must be an integer`);
+      if(q.offset < 0) throw new BadRequestError(`When provided, offset must be >= 0`);
+    }
+    if(typeof q.match !== "undefined" && typeof q.match !== "string"){
+      throw new BadRequestError(`When provided, match must be a string`);
+    }
+    if(typeof q.state !== "undefined" && !['all','active','disabled'].includes(q.state)){
+      throw new BadRequestError(`When provided, state must be all, active or disabled`);
+    }
+    return q;
+  }
+
+  /** Escape LIKE wildcards in user-supplied match so the pattern is a literal substring search. */
+  private static _likePattern(match :string){
+    return `%${match.replace(/[\\%_]/g, c => "\\"+c)}%`;
+  }
+
+  /**
+   * List users
+   */
+   async getUsers() :Promise<SafeUser[]>
+   async getUsers(safe :true, q ?:UserQuery) :Promise<SafeUser[]>
+   async getUsers(safe :false, q ?:UserQuery) :Promise<User[]>
+   async getUsers(safe :boolean, q ?:UserQuery) :Promise<SafeUser[]|User[]>
+   async getUsers(safe :boolean =true, q :UserQuery = {}){
+    const {limit, offset = 0, match, state = 'all'} = UserManager._validateUserQuery(q);
+    const args :any[] = [offset];
+    let limitClause = "";
+    if(typeof limit === "number"){
+      args.push(limit);
+      limitClause = `LIMIT $${args.length}`;
+    }
+    let matchClause = "";
+    if(typeof match === "string" && match.length){
+      args.push(UserManager._likePattern(match));
+      matchClause = `AND (unaccent(LOWER(username COLLATE "C")) LIKE unaccent(LOWER($${args.length})) ESCAPE '\\' OR unaccent(LOWER(email COLLATE "C")) LIKE unaccent(LOWER($${args.length})) ESCAPE '\\')`;
+    }
+    return (await this.db.all<StoredUser>(`
+      SELECT ${safe?"user_id, username, email, level":"*"}
+      FROM users
+      WHERE user_id NOT IN (0, 1)
+      ${matchClause}
+      ${state==='active'?'AND level > 0':state==='disabled'?'AND level = 0':''}
+      ORDER BY username ASC
+      OFFSET $1
+      ${limitClause}`, args)).map(u=>UserManager.deserialize(u));
+  }
+
+  async userCount(match ?:string) :Promise<number>{
+    const args :any[] = [];
+    let matchClause = "";
+    if(typeof match === "string" && match.length){
+      args.push(UserManager._likePattern(match));
+      matchClause = `AND (unaccent(LOWER(username COLLATE "C")) LIKE unaccent(LOWER($1)) ESCAPE '\\' OR unaccent(LOWER(email COLLATE "C")) LIKE unaccent(LOWER($1)) ESCAPE '\\')`;
+    }
+    let r = (await this.db.all<{count: number|string}>(`
+      SELECT COUNT(user_id) as count
+      FROM users
+      WHERE user_id NOT IN (0, 1)
+      ${matchClause}`, args))[0];
+    if(!r) throw new InternalError(`Bad db configuration : can't get user count`);
+    return typeof r.count === "string" ? parseInt(r.count, 10) : r.count;
+  }
+  /**
+   * 
+   * @param name 
+   * @param password clear-text password 
+   * @param callback 
+   * @throws {UnauthorizedError}
+   */
+  async getUserByNamePassword(name : string, password : string) :Promise<User>{
+    let u = await this.getUserByName(name);
+    if(!u?.password) throw new UnauthorizedError("Username not found");
+    if(!await UserManager.verifyPassword(password, u.password)){
+      throw new UnauthorizedError("Bad password");
+    }else{
+      return u;
+    }
+  }
+  /**
+   * Performs any necessary checks and create a new user
+   * @param password clear-text password
+   */
+  async addUser(username : string, password : string, level : UserRole = "create", email ?:string) : Promise<User>{ 
+    if(!UserManager.isValidUserName(username)) throw new Error(`Invalid username : ${username}`);
+    if(password.length < 8) throw new Error(`Password too short (min. 8 char long)`);
+    if(UserRoles.indexOf(level) === -1) throw new Error(`Invalid user role : ${level}`);
+    let user = new User({
+      username, 
+      password: await UserManager.formatPassword(password), 
+      email: email,
+      level, 
+      uid: 0,
+    });
+
+    for(let i = 0; i < 3; i++){
+      //Retry 3 times in case we are unlucky with the RNG
+      try{
+        /* 48bits is a safe integer (ie. less than 2^53-1)*/
+        user.uid = Uid.make();
+        await this.write(user);
+        break;
+      }catch(e:any){
+        if(e.code == errors.unique_violation && e.constraint === "users_user_id_key") continue;
+        if(e.code == errors.unique_violation && e.constraint === "users_username_key") throw new ConflictError(`username ${username} already exists`);
+        if(e.code == errors.unique_violation && e.constraint === "users_email_key") throw new ConflictError(`email ${email} already exists`);
+        else throw e;
+      }
+    }
+    return user;
+  }
+
+  async patchUser(uid :number, u :Partial<User>){
+    let values = [], params :any[] = [uid.toString(10)];
+
+    let keys = ["username", "password", "email", "level"]as Array<keyof Omit<User,"uid">>;
+    for(let i = 0; i < keys.length; i++){
+      let key = keys[i];
+      let value = u[key];
+      if(typeof value === "undefined") continue;
+      if (key != "level") {
+        let validator = UserManager.isValid[key];
+        if(typeof validator === "function" && !validator(value)){
+          throw new BadRequestError(`Bad value for ${key}: ${value}`);
+        }
+      }
+      values.push( key + ` = $${params.length+1}`);
+
+      if(key === "password"){
+        params.push(await UserManager.formatPassword(value as string));
+      } else if(key == "level"){
+        params.push(UserRoles.indexOf(value as any));
+      } else {
+        params.push(value);
+      }
+    }
+    if(values.length === 0){
+      throw new BadRequestError(`Provide at least one valid value to change`);
+    }
+    let r = await this.db.get<StoredUser>(`
+      UPDATE users 
+      SET ${values.join(", ")} 
+      WHERE user_id = $1
+      RETURNING *
+    `, params);
+    if(!r) throw new NotFoundError(`Can't find user with uid : ${uid}`);
+    if(typeof u.password !== "undefined"){
+      //A password change evicts every active session for this user (OWASP ASVS V3).
+      //The route handler may mint a fresh session for the requester afterwards.
+      await this.removeUserSessions(uid);
+    }
+    return UserManager.deserialize(r);
+  }
+
+  async removeUser(uid :number){
+    let r = await this.db.run(`DELETE FROM users WHERE user_id = $1`, [ uid.toString(10) ]);
+    if(!r || !r.changes) throw new NotFoundError(`No user to delete with uid ${uid}`);
+  }
+
+  /**
+   * patches permissions on a scene for a given user.
+   * Usernames are converted to IDs before being used.
+   * > As per [rfc7396](https://datatracker.ietf.org/doc/html/rfc7396), 
+   * > Null values in the merge patch are given special meaning to indicate the removal
+   * > of existing values in the target.
+   * 
+   * @param scene scene name or id
+   * @param user username or user_id to grant access to
+   * @param role 
+   */
+  async grant(scene :string|number, user :string|number, role :AccessType|null){
+    if(!isAccessType(role)) throw new BadRequestError(`Bad access type requested : ${role}`);
+    let scene_id = `(${(typeof scene === "number")?`SELECT $1::bigint AS scene_id`:`SELECT scene_id FROM scenes WHERE scene_name = $1`})`
+    let user_id =  `(${(typeof user === "number")?`SELECT $2::bigint AS user_id`:`SELECT user_id FROM users WHERE username = $2`})`;
+    let level = toAccessLevel(role);
+    if(0 < level){
+      try{
+        await this.db.run(`
+          INSERT INTO users_acl (fk_user_id, fk_scene_id, access_level)
+          SELECT ${user_id}, ${scene_id}, $3
+          ON CONFLICT (fk_user_id, fk_scene_id) DO UPDATE SET access_level = EXCLUDED.access_level
+        `, [
+          scene,
+          user,
+          level
+        ]);
+      }catch(e:any){
+        if(e.code === errors.not_null_violation && e.table === "users_acl" && e.column === "fk_user_id"){
+          throw new NotFoundError( (typeof user === "number")? `User ID can't be null` : `Invalid username ${user}`);
+        }else if(e.code === errors.foreign_key_violation && e.table === "users_acl" && e.constraint === 'users_acl_fk_user_id_fkey'){
+          throw new NotFoundError(`Invalid user ID ${user}`);
+        }else if(e.code === errors.not_null_violation && e.table === "users_acl" && e.column === "fk_scene_id"){
+          throw new NotFoundError(`Scene ${scene} does not exist`);
+        }
+        throw e;
+      }
+    }else{
+      let r = await this.db.run(`
+        DELETE FROM users_acl
+        WHERE (fk_scene_id IN ${scene_id} AND fk_user_id IN ${user_id})
+      `, [
+        scene,
+        user,
+      ]);
+      if(!r || !r.changes){
+        throw new NotFoundError(`Can't find matching user or scene`);
+      }
+    }
+  }
+
+  /**
+   * Resolve the requester's {@link AccessLevel} on a scene: the highest of
+   * their `users_acl` row, their groups' `groups_acl` rows, the scene's
+   * `default_access` (if authenticated) and `public_access`; instance admins
+   * resolve to Admin.
+   * @throws {NotFoundError} when the scene doesn't exist — or resolves to None,
+   * so an invisible scene is indistinguishable from an absent one.
+   */
+  async getAccessRights(scene :string | number, uid :number | undefined | null) :Promise<AccessLevel>{
+    const res = await this.db.get( typeof uid == "number" ? `
+      SELECT max(level) as level
+      FROM
+      (SELECT GREATEST(
+        users_acl.access_level,
+        CASE 
+          WHEN (SELECT level FROM users WHERE user_id = $2) IS NOT NULL THEN scenes.default_access 
+          ELSE 0 END,
+        scenes.public_access,
+        user_is_admin_level.level,
+        groups.access_level
+      ) AS level
+      FROM
+        scenes
+        LEFT JOIN (        
+          SELECT CASE level WHEN ${UserLevels.ADMIN} THEN ${toAccessLevel("admin")} ELSE NULL END AS level
+          FROM users
+          WHERE user_id = $2
+        ) AS user_is_admin_level ON TRUE
+        LEFT OUTER JOIN users_acl ON (fk_scene_id = scenes.scene_id AND fk_user_id = $2)
+        LEFT OUTER JOIN (
+          SELECT * 
+            FROM groups_acl INNER JOIN groups_membership ON (groups_acl.fk_group_id = groups_membership.fk_group_id)
+           WHERE fk_user_id = $2)
+          AS groups ON (groups.fk_scene_id = scenes.scene_id AND groups.fk_user_id = $2) 
+      WHERE ${typeof scene === "number" ?
+        "scene_id = $1"
+        : "scene_name = $1"}
+      ) AS levels` :
+      // Request when no uid :
+      `SELECT public_access as level
+      FROM scenes
+      WHERE ${typeof scene ==="number"? 
+        "scene_id = $1" : "scene_name = $1" }`
+      , uid ? [scene, uid] : [scene]
+    );
+    if(!res || !res.level) throw new NotFoundError(`No scene with ${typeof scene ==="number"? `id ${scene}`: `name ${scene}`}`);
+    return res.level as AccessLevel;
+
+  }
+
+  /**
+   * Get a scene's full ACL: every explicit per-user and per-group access entry.
+   * Access to this should be externally restricted to users with READ rights over this scene.
+   *
+   * For this reason, this method is not really made safe: It won't throw a 404 if the requested scene doesn't exist.
+   * @see https://www.sqlite.org/json1.html#jeach for json_each documentation
+   */
+  async getAcl(nameOrId: string | number): Promise<({ uid: number, username: string, access: AccessType } | { groupUid: number, groupName: string, access: AccessType })[]> {
+    let key = ((typeof nameOrId == "number") ? "scene_id" : "scene_name");
+    let r = await this.db.all<{ uid: string, username: string | null, group_name: string | null, level: number }>(`
+      SELECT 
+        users.user_id AS uid,
+        users.username AS username,
+        NULL AS group_name,
+        users_acl.access_level AS level
+      FROM 
+        scenes
+        INNER JOIN users_acl ON users_acl.fk_scene_id = scenes.scene_id
+        INNER JOIN users ON users_acl.fk_user_id = users.user_id
+      WHERE scenes.${key} = $1
+      UNION
+        SELECT 
+        groups.group_id AS uid,
+        NULL AS username,
+        groups.group_name AS group_name,
+        groups_acl.access_level AS level
+      FROM 
+        scenes
+        INNER JOIN groups_acl ON groups_acl.fk_scene_id = scenes.scene_id
+        INNER JOIN groups ON groups_acl.fk_group_id = groups.group_id
+      WHERE scenes.${key} = $1
+    `, [
+      (typeof nameOrId == "number") ? nameOrId.toString(10) : nameOrId,
+    ]);
+    return r.map(l => (l.username ? {
+      uid: parseInt(l.uid),
+      username: l.username,
+      access: fromAccessLevel(l.level)
+    } : {
+      groupUid: parseInt(l.uid),
+      groupName: l.group_name as string,
+      access: fromAccessLevel(l.level)
+    }));
+    
+  }
+
+  async setPublicAccess(scene: string | number, role: "none" | "read"): Promise<void> {
+    let is_id = typeof scene === "number";
+    let level = toAccessLevel(role)
+    if(level < 0 || 1 < level) throw new BadRequestError(`Can't set scene public access to ${role}`)
+    let r = await this.db.run(`
+      UPDATE scenes
+      SET public_access = $2
+      WHERE ${(is_id)?"scene_id":"scene_name"} = $1
+      `, [
+        scene,
+        level,
+      ]);    
+    if(r?.changes != 1) throw new NotFoundError(`No scene found with ${(is_id)?"scene_id":"scene_name"} = ${scene}`);
+
+  }
+
+  async setDefaultAccess(scene: string|number, role:"none"|"read"|"write"):Promise<void>{
+    let is_id = typeof scene === "number";
+    try{
+      let r = await this.db.run(`
+        UPDATE scenes
+        SET default_access = $2
+        WHERE ${is_id?"scene_id":"scene_name"} = $1
+        `, [
+          scene,
+          toAccessLevel(role),
+        ]);
+      if(r?.changes != 1) throw new NotFoundError(`No scene found with ${is_id?"scene_id":"scene_name"} = ${scene}`);
+
+    }catch(e: any){
+      if(e.code == errors.check_violation && e.constraint == "default_access_allowed_values"){
+        throw new BadRequestError(`Invalid value for scene default access : ${role}`);
+      }
+      throw e;
+    }
+  }
+
+  /**
+   * Open a new server-side session for a user.
+   * The returned `sid` is the session credential: it is stored hashed and can not be retrieved afterwards.
+   */
+  async createSession(uid: number, {expires, userAgent}: {expires: Date, userAgent?: string}): Promise<{sid: string, session: UserSession}>{
+    const sid = crypto.randomBytes(32).toString("base64url");
+    let r = await this.db.get<StoredSession>(`
+      INSERT INTO user_sessions (sid_hash, fk_user_id, expires_at, user_agent)
+      SELECT $1, user_id, $3, $4 FROM users WHERE user_id=$2 AND level>0
+      RETURNING *
+    `, [
+      hashSid(sid),
+      uid.toString(10),
+      expires,
+      userAgent ?? null,
+    ]);
+    //istanbul ignore if
+    if(!r) throw new UnauthorizedError('Account unavailable');
+    return {sid, session: deserializeSession(r)};
+  }
+
+  /**
+   * Resolve a session credential into its user.
+   * Identity (including level) always comes from the users table so revocations and level changes are immediate.
+   * Expiry is **not** checked here: the caller is expected to compare `expires` and handle renewal.
+   * @throws {UnauthorizedError} if the session does not exist (never existed, or was revoked)
+   */
+  async authenticateSession(sid: string): Promise<{user: SafeUser, sessionId: number, expires: Date}>{
+    let r = await this.db.get<StoredSession & Pick<StoredUser, "user_id"|"username"|"email"|"level">>(`
+      SELECT s.session_id, s.fk_user_id, s.created_at, s.expires_at, s.last_seen, s.user_agent,
+        u.user_id, u.username, u.email, u.level
+      FROM user_sessions AS s
+      INNER JOIN users AS u ON u.user_id = s.fk_user_id
+      WHERE s.sid_hash = $1 AND u.level>0
+    `, [hashSid(sid)]);
+    if(!r) throw new UnauthorizedError(`Invalid session`);
+    return {
+      user: User.safe(UserManager.deserialize({...r, password: undefined})),
+      sessionId: deserializeSession(r).id,
+      expires: r.expires_at,
+    };
+  }
+
+  /**
+   * Slide a session's expiry forward. Doubles as the (renewal-throttled) `last_seen` update.
+   */
+  async renewSession(sessionId: number, expires: Date): Promise<void>{
+    await this.db.run(`
+      UPDATE user_sessions
+      SET expires_at = $2, last_seen = CURRENT_TIMESTAMP
+      WHERE session_id = $1
+    `, [sessionId.toString(10), expires]);
+  }
+
+  /**
+   * List a user's active sessions (inventory). Never exposes the credential.
+   */
+  async getSessions(uid: number): Promise<UserSession[]>{
+    return (await this.db.all<StoredSession>(`
+      SELECT session_id, fk_user_id, created_at, expires_at, last_seen, user_agent
+      FROM user_sessions
+      WHERE fk_user_id = $1
+      ORDER BY last_seen DESC
+    `, [uid.toString(10)])).map(deserializeSession);
+  }
+
+  /**
+   * Revoke a session by its management id.
+   * @param uid when provided, restricts deletion to this user's sessions (owner-scoped revocation)
+   * @throws {NotFoundError} if no matching session exists
+   */
+  async removeSession(sessionId: number, uid?: number): Promise<void>{
+    const args: any[] = [sessionId.toString(10)];
+    if(typeof uid === "number") args.push(uid.toString(10));
+    let r = await this.db.run(`
+      DELETE FROM user_sessions
+      WHERE session_id = $1 ${typeof uid === "number" ? "AND fk_user_id = $2" : ""}
+    `, args);
+    if(!r || !r.changes) throw new NotFoundError(`No session to delete with id ${sessionId}`);
+  }
+
+  /**
+   * Revoke a session by its credential (logout)
+   */
+  async removeSessionBySid(sid: string): Promise<void>{
+    await this.db.run(`DELETE FROM user_sessions WHERE sid_hash = $1`, [hashSid(sid)]);
+  }
+
+  /**
+   * Revoke all of a user's sessions, eg. after a password change
+   */
+  async removeUserSessions(uid: number): Promise<void>{
+    await this.db.run(`DELETE FROM user_sessions WHERE fk_user_id = $1`, [uid.toString(10)]);
+  }
+
+  /**
+   * Create an API token for a user.
+   * A token never grants more than its owner can do: identity — including
+   * level — is resolved from the owner's user row on every use
+   * ({@link authenticateToken}).
+   * @returns the serialized token (shown exactly once: only its hash is stored) and its metadata
+   */
+  async createToken(uid: number, {name, scope = ["all"], clientId = null, expires = null}: {
+    name: string,
+    scope?: string[],
+    clientId?: number | null,
+    expires?: Date | null,
+  }): Promise<{token: string, meta: ApiToken}>{
+    if(typeof name !== "string" || name.length == 0) throw new BadRequestError(`A token name is required`);
+    if(!isValidScope(scope)) throw new BadRequestError(`Invalid token scope : ${JSON.stringify(scope)}`);
+    const secret = makeSecret();
+    let r = await this.db.get<StoredToken>(`
+      INSERT INTO api_tokens (fk_user_id, fk_client_id, name, hash, scope, expires_at)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `, [
+      uid.toString(10),
+      clientId == null ? null : clientId.toString(10),
+      name,
+      hashSecret(secret),
+      scope,
+      expires,
+    ]);
+    //istanbul ignore if
+    if(!r) throw new InternalError(`Failed to create a token for user ${uid}`);
+    return {token: formatToken(secret), meta: deserializeToken(r)};
+  }
+
+  /**
+   * Resolve an API token into its user.
+   * Identity — including level — is the owner's *current* one, joined here on
+   * every use, so revocations and level changes apply to the next request.
+   * @throws {UnauthorizedError} for anything but a valid, unexpired token
+   */
+  async authenticateToken(token: string): Promise<{user: SafeUser, token: ApiToken}>{
+    const secret = parseToken(token);
+    if(!secret) throw new UnauthorizedError(`Invalid authorization token`);
+    //The secret is 256 bits of entropy, so an exact sha256(secret) match (a
+    //unique index) IS the verification: no id is transmitted, and no separate
+    //constant-time compare is needed.
+    const hash = hashSecret(secret);
+    let r = await this.db.get<StoredToken & Pick<StoredUser, "user_id"|"username"|"email"|"level">>(`
+      SELECT t.*, u.user_id, u.username, u.email, u.level
+      FROM api_tokens AS t
+      INNER JOIN users AS u ON u.user_id = t.fk_user_id
+      WHERE t.hash = $1 AND u.level>0
+    `, [hash]);
+    if(!r){
+      throw new UnauthorizedError(`Invalid authorization token`);
+    }
+    if(r.expires_at && r.expires_at.valueOf() < Date.now()){
+      throw new UnauthorizedError(`Token expired`);
+    }
+    //Throttled usage tracking: at most one write per 5 minutes per token
+    await this.db.run(`
+      UPDATE api_tokens SET last_used_at = CURRENT_TIMESTAMP
+      WHERE hash = $1
+        AND (last_used_at IS NULL OR last_used_at < CURRENT_TIMESTAMP - interval '5 minutes')
+    `, [hash]);
+    return {
+      user: User.safe(UserManager.deserialize({...r, password: undefined})),
+      token: deserializeToken(r),
+    };
+  }
+
+  /**
+   * List a user's API tokens (inventory). Never exposes secrets.
+   */
+  async getTokens(uid: number): Promise<ApiToken[]>{
+    return (await this.db.all<StoredToken>(`
+      SELECT t.*, c.name AS client_name
+      FROM api_tokens AS t
+      LEFT JOIN oauth_clients AS c ON c.client_id = t.fk_client_id
+      WHERE t.fk_user_id = $1
+      ORDER BY t.created_at DESC
+    `, [uid.toString(10)])).map(deserializeToken);
+  }
+
+  /**
+   * Revoke a token by its management id.
+   * @param uid when provided, restricts deletion to this user's tokens (owner-scoped revocation)
+   * @throws {NotFoundError} if no matching token exists
+   */
+  async removeToken(tokenId: number, uid?: number): Promise<void>{
+    const args: any[] = [tokenId.toString(10)];
+    if(typeof uid === "number") args.push(uid.toString(10));
+    let r = await this.db.run(`
+      DELETE FROM api_tokens
+      WHERE token_id = $1 ${typeof uid === "number" ? "AND fk_user_id = $2" : ""}
+    `, args);
+    if(!r || !r.changes) throw new NotFoundError(`No token to delete with id ${tokenId}`);
+  }
+
+  /**
+   * Revoke a token by its credential (RFC7009: possession of the token is sufficient).
+   * Idempotent and silent: revoking an invalid or unknown token is not an error.
+   */
+  async removeTokenBySecret(token: string): Promise<void>{
+    const secret = parseToken(token);
+    if(!secret) return;
+    //Possession of the token is sufficient (RFC7009); an unknown secret simply
+    //matches no row, so the delete is idempotent and silent.
+    await this.db.run(`DELETE FROM api_tokens WHERE hash = $1`, [hashSecret(secret)]);
+  }
+
+  /**
+   * Register an OAuth2 client.
+   * @returns the client and, for confidential clients, its secret (shown exactly once)
+   */
+  async createClient(name: string, redirectUris: string[], {createdBy = null, confidential = true}: {
+    createdBy?: number | null,
+    confidential?: boolean,
+  } = {}): Promise<{client: OAuthClient, secret: string | null}>{
+    if(typeof name !== "string" || name.length == 0) throw new BadRequestError(`A client name is required`);
+    if(!Array.isArray(redirectUris) || redirectUris.length == 0){
+      throw new BadRequestError(`At least one redirect URI is required`);
+    }
+    for(const uri of redirectUris){
+      let u;
+      try{
+        u = new URL(uri);
+      }catch(e){
+        throw new BadRequestError(`Invalid redirect URI : ${uri}`);
+      }
+      if(u.protocol !== "https:" && u.protocol !== "http:") throw new BadRequestError(`Invalid redirect URI scheme : ${uri}`);
+      if(u.hash) throw new BadRequestError(`Redirect URIs must not have a fragment : ${uri}`);
+    }
+    const secret = confidential ? makeSecret() : null;
+    let r;
+    try{
+      r = await this.db.get<StoredClient>(`
+        INSERT INTO oauth_clients (name, secret_hash, redirect_uris, created_by)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+      `, [
+        name,
+        secret ? hashSecret(secret) : null,
+        redirectUris,
+        createdBy == null ? null : createdBy.toString(10),
+      ]);
+    }catch(e: any){
+      if(e.code == errors.unique_violation && e.constraint === "oauth_clients_name_key") throw new ConflictError(`A client named ${name} already exists`);
+      throw e;
+    }
+    //istanbul ignore if
+    if(!r) throw new InternalError(`Failed to create client ${name}`);
+    return {client: deserializeClient(r), secret: secret ? secret.toString("base64url") : null};
+  }
+
+  /**
+   * @throws {NotFoundError}
+   */
+  async getClient(clientId: number): Promise<OAuthClient>{
+    let r = await this.db.get<StoredClient>(`SELECT * FROM oauth_clients WHERE client_id = $1`, [clientId.toString(10)]);
+    if(!r) throw new NotFoundError(`No client with id ${clientId}`);
+    return deserializeClient(r);
+  }
+
+  async getClients(): Promise<OAuthClient[]>{
+    return (await this.db.all<StoredClient>(`SELECT * FROM oauth_clients ORDER BY name ASC`)).map(deserializeClient);
+  }
+
+  /**
+   * Deleting a client cascades: every token it minted is revoked.
+   * @throws {NotFoundError}
+   */
+  async removeClient(clientId: number): Promise<void>{
+    let r = await this.db.run(`DELETE FROM oauth_clients WHERE client_id = $1`, [clientId.toString(10)]);
+    if(!r || !r.changes) throw new NotFoundError(`No client to delete with id ${clientId}`);
+  }
+
+  /**
+   * Authenticate an OAuth2 client at the token endpoint.
+   * Confidential clients must present their secret; public clients must not have one to present.
+   * @throws {UnauthorizedError} so callers can map it to the `invalid_client` OAuth error
+   */
+  async authenticateClient(clientId: number, secret?: string | null): Promise<OAuthClient>{
+    let r = await this.db.get<StoredClient>(`SELECT * FROM oauth_clients WHERE client_id = $1`, [clientId.toString(10)]);
+    if(!r) throw new UnauthorizedError(`Unknown client`);
+    if(r.secret_hash){
+      if(!secret || !verifySecret(Buffer.from(secret, "base64url"), r.secret_hash)){
+        throw new UnauthorizedError(`Bad client credentials`);
+      }
+    }else if(secret){
+      throw new UnauthorizedError(`Bad client credentials`);
+    }
+    return deserializeClient(r);
+  }
+
+  /**
+   * Mint a single-use authorization code, bound to its client, redirect URI,
+   * scope and PKCE challenge.
+   * @returns the code (stored hashed, can not be retrieved afterwards)
+   */
+  async createAuthorizationCode({clientId, uid, scope, redirectUri, codeChallenge}: Omit<AuthorizationCode, "expires">): Promise<string>{
+    const code = makeSecret().toString("base64url");
+    await this.db.run(`
+      INSERT INTO oauth_codes (code_hash, fk_client_id, fk_user_id, scope, redirect_uri, code_challenge, expires_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `, [
+      hashSecret(code),
+      clientId.toString(10),
+      uid.toString(10),
+      scope,
+      redirectUri,
+      codeChallenge,
+      new Date(Date.now() + CODE_LIFETIME),
+    ]);
+    return code;
+  }
+
+  /**
+   * Consume an authorization code (single-use: it is deleted atomically).
+   * The caller still has to validate the binding (client, redirect URI, PKCE) and expiry.
+   * @returns null if the code does not exist (never existed, already used, or swept)
+   */
+  async exchangeAuthorizationCode(code: string): Promise<AuthorizationCode | null>{
+    let r = await this.db.get<{
+      fk_client_id: string | number,
+      fk_user_id: string | number,
+      scope: string[],
+      redirect_uri: string,
+      code_challenge: string,
+      expires_at: Date,
+    }>(`
+      DELETE FROM oauth_codes WHERE code_hash = $1
+      RETURNING *
+    `, [hashSecret(code)]);
+    if(!r) return null;
+    return {
+      clientId: typeof r.fk_client_id === "string" ? parseInt(r.fk_client_id, 10) : r.fk_client_id,
+      uid: typeof r.fk_user_id === "string" ? parseInt(r.fk_user_id, 10) : r.fk_user_id,
+      scope: r.scope,
+      redirectUri: r.redirect_uri,
+      codeChallenge: r.code_challenge,
+      expires: r.expires_at,
+    };
+  }
+
+  /**
+   * Record (or extend) a user's consent for a client.
+   * The stored scope is the union of every approved scope set, so a later
+   * request for a previously-approved subset stays covered.
+   */
+  async upsertGrant(uid: number, clientId: number, scope: string[]): Promise<void>{
+    await this.db.run(`
+      INSERT INTO oauth_grants (fk_user_id, fk_client_id, scope)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (fk_user_id, fk_client_id) DO UPDATE SET
+        scope = (SELECT array_agg(DISTINCT s) FROM unnest(oauth_grants.scope || EXCLUDED.scope) AS s),
+        updated_at = CURRENT_TIMESTAMP
+    `, [uid.toString(10), clientId.toString(10), scope]);
+  }
+
+  /** @returns null when the user never consented for this client (or revoked it) */
+  async getGrant(uid: number, clientId: number): Promise<OAuthGrant | null>{
+    const r = await this.db.get<{name: string, scope: string[], created_at: Date, updated_at: Date}>(`
+      SELECT c.name, g.scope, g.created_at, g.updated_at
+      FROM oauth_grants AS g INNER JOIN oauth_clients AS c ON c.client_id = g.fk_client_id
+      WHERE g.fk_user_id = $1 AND g.fk_client_id = $2
+    `, [uid.toString(10), clientId.toString(10)]);
+    if(!r) return null;
+    return {clientId, clientName: r.name, scope: r.scope, created: r.created_at, updated: r.updated_at};
+  }
+
+  /** Every client this user has authorized (the "authorized applications" list) */
+  async getGrants(uid: number): Promise<OAuthGrant[]>{
+    const rows = await this.db.all<{client_id: string | number, name: string, scope: string[], created_at: Date, updated_at: Date}>(`
+      SELECT g.fk_client_id AS client_id, c.name, g.scope, g.created_at, g.updated_at
+      FROM oauth_grants AS g INNER JOIN oauth_clients AS c ON c.client_id = g.fk_client_id
+      WHERE g.fk_user_id = $1
+      ORDER BY c.name ASC
+    `, [uid.toString(10)]);
+    return rows.map(r=>({
+      clientId: typeof r.client_id === "string" ? parseInt(r.client_id, 10) : r.client_id,
+      clientName: r.name,
+      scope: r.scope,
+      created: r.created_at,
+      updated: r.updated_at,
+    }));
+  }
+
+  /**
+   * Withdraw a user's consent for a client: stops silent re-authorization and
+   * revokes every token this client obtained for this user (atomically).
+   * Idempotent: revoking an absent grant is a no-op.
+   */
+  async removeGrant(uid: number, clientId: number): Promise<void>{
+    await this.db.run(`
+      WITH revoked_consent AS (
+        DELETE FROM oauth_grants WHERE fk_user_id = $1 AND fk_client_id = $2
+      )
+      DELETE FROM api_tokens WHERE fk_user_id = $1 AND fk_client_id = $2
+    `, [uid.toString(10), clientId.toString(10)]);
+  }
+
+  async getKeys() :Promise<string[]>{
+    const keys = (
+      await this.db.all<Record<"key_data", Buffer>>(`
+        SELECT key_data FROM keys
+        ORDER BY key_id DESC
+      `)
+    ).map(r=> r.key_data.toString("base64"));
+    if(keys.length == 0){
+      keys.push(await this.addKey());
+    }
+    return keys
+  }
+  async addKey(){
+    let key = randomBytes(16);
+    await this.db.run(`INSERT INTO keys (key_data) VALUES ($1);`, [key]);
+    return key.toString("base64");
+  }
+
+  async addGroup(groupName: string) {
+    try{
+          return new Group((await this.db.all<StoredGroup>(`
+      INSERT INTO groups (group_name)
+      VALUES ($1)
+      RETURNING *
+    `, [
+      groupName
+    ]))[0]);
+    }catch(e:any){
+      if (e.code == errors.unique_violation && e.constraint === "groups_group_name_key")throw new ConflictError(`A group named ${groupName} already exists`)
+      else throw e;
+    }
+  }
+
+  async removeGroup(group: number | string) {
+    let group_id = `(${(typeof group === "number") ? `SELECT $1::bigint AS group_id` : `SELECT group_id FROM groups WHERE group_name = $1`})`;
+    let r = await this.db.run(`DELETE FROM groups WHERE group_id = ${group_id}`, [group]);
+    if (!r || !r.changes) throw new NotFoundError(`No group ${group} to delete`);
+  }
+
+  async getGroup(groupName: string): Promise<Group> {
+    let bdd_group = (await this.db.get<StoredGroup>(
+      `SELECT 
+        group_name,
+        group_id, 
+        jsonb_object_agg (COALESCE(scene_name,''::text), access_level)  - '' AS scenes,
+        array_remove(ARRAY_AGG(DISTINCT username), NULL)  AS members 
+        FROM groups 
+        LEFT JOIN groups_acl ON groups_acl.fk_group_id = group_id
+        LEFT JOIN scenes ON fk_scene_id = scene_id 
+        LEFT JOIN groups_membership ON groups_membership.fk_group_id = group_id
+        LEFT JOIN users ON groups_membership.fk_user_id = user_id
+        WHERE group_name = $1
+        GROUP BY group_name, group_id`, [groupName]));
+    if (!bdd_group) throw new NotFoundError(`no group named ${groupName}`);
+    return new Group(bdd_group);
+  }
+
+  async getGroups(): Promise<Group[]> {
+    return ((await this.db.all<{ group_id: number, group_name: string }>(`
+      SELECT * FROM groups`)).map(group => new Group(group)));
+  }
+
+  async getGroupsOfUser(user_id: number): Promise<Group[]> {
+    return ((await this.db.all<{ group_id: number, group_name: string }>(`
+      SELECT * 
+      FROM groups
+      JOIN groups_membership ON groups_membership.fk_group_id = group_id
+      WHERE fk_user_id = $1
+      `,[user_id])).map(group => new Group(group)));
+  }
+
+  async addMemberToGroup(user: number | string, group: number | string) {
+    let group_id = `(${(typeof group === "number") ? `SELECT $1::bigint AS group_id` : `SELECT group_id FROM groups WHERE group_name = $1`})`;
+    let user_id = `(${(typeof user === "number") ? `SELECT $2::bigint AS user_id` : `SELECT user_id FROM users WHERE username = $2`})`;
+    try {
+      let r = await this.db.run(` 
+        INSERT INTO groups_membership (fk_group_id, fk_user_id)
+        SELECT ${group_id}, ${user_id}`,
+        [group, user]);
+      if (!r || !r.changes) throw new NotFoundError(`No user ${user} to add `);
+    }
+    catch (e: any) {
+      if (e.code == errors.not_null_violation && ((e.column == "fk_group_id") || (e.column == "fk_user_id"))) {
+        if (e.column == "fk_user_id") {
+          throw new NotFoundError("User " + user.toString() + " not found")
+        } else {
+          throw new NotFoundError("Group " + group.toString() + " not found")
+        }
+      }
+      else if (e.code != errors.unique_violation) {
+        throw e
+      }
+    }
+  }
+
+  async removeMemberFromGroup(user: number | string, group: number | string) {
+    let group_id = `(${(typeof group === "number") ? `SELECT $1::bigint AS group_id` : `SELECT group_id FROM groups WHERE group_name = $1`})`;
+    let user_id = `(${(typeof user === "number") ? `SELECT $2::bigint AS user_id` : `SELECT user_id FROM users WHERE username = $2`})`;
+
+    let r = await this.db.run(`
+      DELETE FROM groups_membership 
+      WHERE fk_user_id = ${user_id} AND fk_group_id = ${group_id}`, [group, user]);
+    if (!r || !r.changes) throw new NotFoundError(`No member ${user} to delete from group ${group}`);
+  }
+
+  /* This returns false is the group or user does not exist.
+    It should not be exposed via any API routes.
+    It is currently only used to check access rights for accessing to groups */
+  async isMemberOfGroup(user: number | string, group: number | string) {
+    let res: { fk_user_id: number };
+    if (typeof (user) == "number") {
+      res = (await this.db.all<{ fk_user_id: number }>(`SELECT fk_user_id FROM groups_membership ${typeof (group) == "string" ? `JOIN groups ON fk_group_id = group_id WHERE group_name = $2` : `WHERE fk_group_id = $2`} AND fk_user_id = $1`, [user, group]))[0];
+    } else {
+      res = (await this.db.all<{ fk_user_id: number }>(`SELECT fk_user_id FROM groups_membership  JOIN users ON fk_user_id = user_id  ${typeof (group) == "string" ? `JOIN groups ON fk_group_id = group_id WHERE group_name = $2` : `WHERE fk_group_id = $2`} AND username = $1`, [user, group]))[0];
+    }
+    return (res && (typeof (res.fk_user_id) === "number"))
+  }
+
+
+  /**
+ * patches permissions on a scene for a given group.
+ * Groupnames are converted to IDs before being used.
+ * > As per [rfc7396](https://datatracker.ietf.org/doc/html/rfc7396), 
+ * > Null values in the merge patch are given special meaning to indicate the removal
+ * > of existing values in the target.
+ * 
+ * @param scene scene name or id
+ * @param user username or user_id to grant access to
+ * @param role 
+ */
+  async grantGroup(scene: string | number, group: string | number, role: AccessType|null) {
+    if (!isAccessType(role)) throw new BadRequestError(`Bad access type requested : ${role}`);
+    let scene_id = `(${(typeof scene === "number") ? `SELECT $1::bigint AS scene_id` : `SELECT scene_id FROM scenes WHERE scene_name = $1`})`
+    let group_id = `(${(typeof group === "number") ? `SELECT $2::bigint AS group_id` : `SELECT group_id FROM groups WHERE group_name = $2`})`;
+    let level = toAccessLevel(role);
+    if (0 < level) {
+      try {
+        await this.db.run(`
+          INSERT INTO groups_acl (fk_group_id, fk_scene_id, access_level)
+          SELECT ${group_id}, ${scene_id}, $3
+          ON CONFLICT (fk_group_id, fk_scene_id) DO UPDATE SET access_level = EXCLUDED.access_level
+        `, [
+          scene,
+          group,
+          level
+        ]);
+      } catch (e: any) {
+        if (e.code === errors.not_null_violation && e.table === "groups_acl" && e.column === "fk_group_id") {
+          throw new NotFoundError(`Group ID can't be null`);
+        } else if (e.code === errors.foreign_key_violation && e.table === "groups_acl" && e.constraint === 'users_acl_fk_group_id_fkey') {
+          throw new NotFoundError(`Invalid group ID ${group}`);
+        } else if (e.code === errors.not_null_violation && e.table === "groups_acl" && e.column === "fk_scene_id") {
+          throw new NotFoundError(`Scene ${scene} does not exist`);
+        }
+        throw e;
+      }
+    } else {
+      let r = await this.db.run(`
+        DELETE FROM groups_acl
+        WHERE (fk_scene_id IN ${scene_id} AND fk_group_id IN ${group_id})
+      `, [
+        scene,
+        group,
+      ]);
+      if (!r || !r.changes) {
+        throw new NotFoundError(`Can't find matching group or scene`);
+      }
+    }
+  }
+}

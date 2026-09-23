@@ -1,0 +1,62 @@
+<div class="grid-content">
+  <div class="error-main">
+    {{#with error}}
+      <h1 class="error-title">Error :{{code}}</h1>
+      <p class="message">{{message}}</p>
+      {{#if reason}}
+      {{else}}
+      <details class="stack">
+        <summary>Trace</summary>
+        <pre ><code>{{#if reason}}{{reason}}{{else}}{{stack}}{{/if}}</code></pre>
+      </details>
+      {{/if}}
+
+    {{/with}}
+  </div>
+  
+</div>
+<style>
+  .error-main{
+    color:var(--color-light);
+    margin: auto;
+    max-width: 82ch;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 60vh;
+    padding-top: min(25vh, 160px);
+
+    display:flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .error-main .error-title{
+    color:var(--color-primary);
+  }
+
+  .error-main .message{
+    font-weight: bold;
+    color: var(--color-light);
+  }
+  .error-main .stack{
+    align-self: flex-start;
+    margin-top: 2rem;
+    summary{
+      cursor: pointer;
+      width: 100%;
+      padding-top: 10px;
+      &:hover{
+        color: var(--color-primary-light);
+        
+      }
+    }
+    > pre {
+      background:var(--color-section);
+      padding: 1ch;
+      overflow: auto;
+
+    }
+  }
+</style>
+<script async src="/dist/js/corpus.js"></script>

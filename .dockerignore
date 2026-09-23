@@ -1,0 +1,8 @@
+*
+!server/
+!server/**
+!portal/
+!portal/**
+!migrations/
+!migrations/**
+!Dockerfile

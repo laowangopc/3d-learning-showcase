@@ -1,0 +1,47 @@
+import {promisify} from "node:util";
+
+import {fromBuffer as fromBufferCb} from "yauzl";
+const fromBuffer = promisify(fromBufferCb);
+
+
+import { test, expect } from '../fixtures.js';
+import { Writable } from "node:stream";
+import { once } from "node:events";
+
+//Authenticated as normal user
+test.use({ storageState: 'playwright/.auth/user.json', locale: "cimode" });
+
+test("downloads a scene archive", async ({page, createScene})=>{
+  const name = await createScene();
+
+  await page.goto(`/ui/scenes/${encodeURIComponent(name)}/settings`);
+  //Check if it _looks like_ the actual scene page
+  await expect(page.locator("h1")).toHaveText(name);
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole("link", {name: "buttons.download"}).click();
+  const download = await downloadPromise;
+  let rs =  await download.createReadStream();
+  let b = Buffer.allocUnsafe(4096);
+  let size = 0;
+  let ws = new Writable({
+    write(chunk:Buffer, encoding, callback) {
+      if(b.length < size + chunk.length) b = Buffer.concat([b, Buffer.allocUnsafe(Math.max(1024, chunk.length))]);
+      size += chunk.copy(b, size);
+      callback();
+    },
+  });
+  rs.pipe(ws, {end: true});
+  await once(rs, "end");
+  b = b.subarray(0, size);
+  const zip = await fromBuffer(b);
+  let entries :any[] = [];
+  zip.on("entry", (entry)=>{
+    entries.push(entry);
+  })
+  await once(zip, "end");
+  expect(entries).toHaveLength(2);
+  expect(entries.map(e=>e.fileName).sort()).toEqual([
+    `scenes/${name}/${name}.glb`,
+    `scenes/${name}/scene.svx.json`,
+  ]);
+});

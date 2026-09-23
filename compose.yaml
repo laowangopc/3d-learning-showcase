@@ -1,0 +1,54 @@
+name: anatomy-unified
+services:
+  database:
+    image: postgres:17@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: learning
+      POSTGRES_USER: learning
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Run npm run prepare-local first}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U learning -d learning]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  app:
+    build:
+      context: ${ANATOMY_RUNTIME_ROOT:?Set an absolute runtime directory}/build
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3080:8000'
+    environment:
+      DATABASE_URI: postgres://learning:${DATABASE_PASSWORD}@database:5432/learning
+      NODE_ENV: production
+      PUBLIC: 'false'
+      TRUST_PROXY: 'false'
+      BRAND: 观察台
+      HOSTNAME: 127.0.0.1:3080
+      LEARNING_DISABLE_NATIVE_BOOTSTRAP: 'true'
+      LEARNING_SETUP_KEY_FILE: /run/secrets/learning_setup_key
+      LOG_LEVEL: warn
+      EXPERIMENTAL: 'false'
+      LEARNING_CURATED_RESOURCE_LIMIT: '3000'
+      LEARNING_CURATED_STORAGE_BYTES: '12884901888'
+    secrets:
+      - learning_setup_key
+    volumes:
+      - files:/app/files
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, server/healthcheck.js]
+      interval: 10s
+      timeout: 5s
+      start_period: 45s
+      retries: 10
+secrets:
+  learning_setup_key:
+    file: ${ANATOMY_RUNTIME_ROOT}/secrets/setup-key.txt
+volumes:
+  database:
+  files:

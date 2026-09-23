@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "lib": ["ESNext"],
+        "module": "NodeNext",
+        "target": "ES2021",
+        "strict": true,
+        "skipLibCheck": true,
+        "types": ["@playwright/test"]
+    },
+    "include": ["./**/*.ts"],
+    "exclude": [
+        "node_modules"
+    ]
+}

@@ -1,0 +1,66 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#071922">
+<meta property="og:image" content="{{thumb}}">
+<meta property="og:image:width" content="320">
+<meta property="og:image:height" content="320">
+
+
+<!-- Apple "add to home screen" meta -->
+<link rel="apple-touch-icon" href="{{thumb}}">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+
+<title>{{#if title}}{{ title }} — {{/if}}{{#if brand}}{{ brand }} — {{/if}}eCorpus</title>
+
+<link rel="icon" type="image/png" href="/dist/favicon.png" sizes="32x32"/>
+<link rel="shortcut icon" type="image/svg+xml" href="/dist/favicon.svg"/>
+<link rel="search" type="application/opensearchdescription+xml" href="{{root_url}}services/opensearch.xml" title="{{#if brand}}{{ brand }}{{else}}eCorpus{{/if}}">
+{{#if embeddable }}
+<link rel="alternate" type="application/json+oembed" href="{{root_url}}services/oembed?url={{encodeURIComponent canonical}}&format=json"/>
+<link rel="alternate" type="text/xml+oembed" href="{{root_url}}services/oembed?url={{encodeURIComponent canonical}}&format=xml"/>
+{{/if}}
+
+<link rel="preload" href="/dist/images/icons.svg" as="image" type="image/svg+xml">
+
+<style>
+  :root{
+    --color-primary: {{color_primary}};
+    --color-secondary: {{color_secondary}};
+  }
+  
+  body{
+    background: var(--color-background, #343434);
+    font-family: var(--font-body, sans-serif);
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  body.nav-grid{
+    display: grid;
+    grid-template-columns: 1fr minmax(0, var(--content-width, 100%)) 1fr;
+    grid-template-rows: var(--nav-height) auto min-content;
+    grid-template-areas: 
+      "navbar navbar navbar"
+      ". main ."
+      "footer footer footer";=
+  }
+
+  nav.navbar-nav{
+    grid-area: navbar;
+  }
+  main{
+    grid-area: main;
+  }
+
+  footer{
+    grid-area: footer;
+  }
+</style>
+
+<link rel="stylesheet" href="/dist/css/theme.css?ref={{ config.build_ref }}">
+<link rel="stylesheet" href="/dist/css/corpus.css?ref={{ config.build_ref }}">

@@ -1,0 +1,97 @@
+@import "./common.scss";
+@import "./nav.scss";
+@import "./landing.scss";
+@import "./card.scss";
+@import "./thumbnails.scss";
+@import "./tags.scss";
+@import "./tasks.scss";
+@import "./dialog.scss";
+
+html {
+  color: var(--color-text);
+}
+
+main {
+  position: relative;
+  flex: 1 0 auto;
+
+  font-family: var(--font-body);
+  color: var(--color-text);
+  padding-top: .67em;
+}
+
+
+
+/*
+ *  Notifications styles
+ * (Notifications are slotted, so externally styled)
+ */
+
+ .notification {
+  position: relative;
+  left: 0;
+  margin: 8px;
+  background: var(--color-highlight);
+  color: var(--color-text);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: stretch;
+  align-items: center;
+
+  .ui-icon {
+    flex: 0 0 auto;
+    height: 2em;
+    width: 2em;
+    padding: 8px; 
+  }
+
+  &.notification-info > .ui-icon {
+    color: var(--color-info);
+  }
+  &.notification-success > .ui-icon {
+    color: var(--color-success);
+  }
+  &.notification-warning > .ui-icon {
+    color: var(--color-warning);
+  }
+  &.notification-error > .ui-icon {
+    color: var(--color-error);
+  }
+  
+  .notification-message {
+    flex: 1 1 100%;
+    padding: 8px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .notification-close {
+    flex: 0;
+    padding: 4px 6px 6px 6px;
+    font-weight: bolder;
+    color: var(--color-highlight2);
+    line-height: 1;
+    font-size: 1.5em;
+    cursor: pointer;
+  }
+  &.fade{
+    transition: transform 0.5s ease-in;
+    transform: translateX(100%);
+  }
+}
+
+.ui-icon{
+  flex: 0 0 auto;
+  display: inline-block;
+  height: 1em;
+  width: 1em;
+  > svg{
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    width: 100%;
+    height: 100%;
+  }
+}

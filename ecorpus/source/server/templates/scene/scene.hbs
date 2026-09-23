@@ -1,0 +1,133 @@
+<div class="section-column">
+  <div class="col" style="display:flex; flex-direction: column;">
+    <div style="display: flex; justify-content: start; gap: 1rem; align-items: baseline; padding-right: 1rem;">
+        <h2 style="flex-grow: 1">{{displayedTitle}}</h2>
+      <span title="{{i18n "labels.defaultAccess"}}: {{i18n (join "fields." scene.default_access) }}">
+        {{#if (test scene.default_access "==" "none")}}
+          <ui-icon class="text-warning" name="lock"></ui-icon>
+        {{else}}
+          <ui-icon class="text-info" name="lock-open"></ui-icon>
+        {{/if}}
+      </span>
+      {{#if (test scene.public_access "!=" "none")}}
+        <button class="btn btn-pill btn-secondary btn-outline">{{i18n "labels.public"}}</button>
+      {{else}}
+        <button class="btn btn-pill btn-primary btn-outline">{{i18n "labels.private"}}</button>
+      {{/if}}
+    </div>
+    <div id="show-tags">
+      <div class="tags-list">
+        {{#each scene.tags}}
+            <a class="btn btn-main btn-small" href="/ui/tags/{{.}}">{{.}}</a>
+        {{/each}}
+        {{#unless scene.tags}}
+          {{#if (accessLevel access "admin")}}
+            <submit-fragment submit="tags" method="PATCH" action="/scenes/{{encodeURIComponent scene.name}}" encoding="application/json" onsubmit="window.location.reload()">
+              <form autocomplete="off" class="form-control tags-list">
+                <label class="form-item add-tag">
+                  <input id="new-tag" name="tags" list="tagSuggestions" type="text" value="" placeholder="{{i18n "fields.tag"}}" onchange=""/>
+                  <button type="submit" class="btn btn-main btn-addon"><ui-icon name="plus"></ui-icon></button>
+                  <datalist id="tagSuggestions">
+                    {{#each tagSuggestions }}
+                      <option value="{{.}}"/>
+                    {{/each}}
+                  </datalist>
+                  {{!This input _has_ to have the same name as the others but we want to prevent its change event from bubbling}}
+                  <script type="module">
+                    (()=>{
+                      const input = document.querySelector("#new-tag");
+                      if(!input) return console.warn("no new tag input found in this document");
+                      input.addEventListener("change", (e)=>e.stopPropagation());
+                    })();
+                  </script>
+                </label>
+              </form>
+            </submit-fragment>
+          {{/if}}
+        {{/unless}}
+      </div>
+    </div>
+    <div>
+      <h3>{{i18n "titles.sceneData"}}</h3>
+      <div id="scene-meta-main" style="flex-grow: 1">
+        {{#with meta}}
+          {{#if primary_language}}
+              <p>
+                {{i18n "labels.localization" count=languages.length }}:
+                {{#each languages}}
+                  {{#if (test @index "!=" 0)}}·{{/if}}
+                  <a href="/ui/scenes/{{encodeURIComponent @root.scene.name}}/view?lang={{.}}" {{#if (test . "==" ../primary_language)}}class="text-success" title="{{i18n "labels.setupLocalization"}}"{{/if}}>{{.}}</a>
+                {{/each}}
+              </p>
+              <p>{{i18n "leads.sceneCounts" tours=tours.length articles=articles.length annotations=annotations.length }}</p>
+          {{else}}
+            {{i18n "leads.noMetaAvailable"}}
+          {{/if}}
+        {{/with}}
+
+        <p>{{displayedIntro}}</p>       
+        {{#if meta.copyright}}
+          <p>{{i18n "labels.copyright"}} {{meta.copyright}}</p>
+        {{/if}}
+        <p>{{i18n "labels.sceneType"}} : {{scene.type}}</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col" style="max-width: 256px;">
+    <section>
+      {{#if scene.archived}}
+        <span class="flush">
+      {{else}}
+        <a class="flush" href="{{#if (test scene.type "==" "voyager")}}/ui/scenes/{{encodeURIComponent scene.name}}/view{{else if (test scene.type "==" "html")}}/scenes/{{encodeURIComponent scene.name}}/index.html{{else}}#{{/if}}">
+      {{/if}}
+        {{#with scene}}
+        {{> sceneThumb}}
+        {{/with}}
+      {{#if scene.archived}}
+        </span>
+      {{else}}
+        </a>
+      {{/if}}
+    </section>
+  </div>
+</div>
+
+
+{{#if onboarding}}
+<div class="onboarding-block" id="onboarding-main">
+  <h2>{{i18n "titles.onboarding"}}</h2>
+  <p>
+    {{i18n "leads.appLead"}} —
+    <a class="text-primary" href="https://ecorpus.eu/{{lang}}/doc/tutorials/">{{i18n "nav.documentation"}}</a>
+  </p>
+
+  <div class="onboarding-steps">
+    <div class="onboarding-step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h3>{{i18n "onboarding.import.title"}}</h3>
+        <p>{{i18n "onboarding.import.lead"}}</p>
+        <a href="https://ecorpus.eu/{{lang}}/doc/tutorials/import.html">{{i18n "onboarding.import.link"}}</a>
+      </div>
+    </div>
+    <div class="onboarding-step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h3>{{i18n "onboarding.annotate.title"}}</h3>
+        <p>{{i18n "onboarding.annotate.lead"}}</p>
+        <a href="https://ecorpus.eu/{{lang}}/doc/tutorials/annotation.html">{{i18n "onboarding.annotate.link"}}</a>
+      </div>
+    </div>
+    <div class="onboarding-step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h3>{{i18n "onboarding.publish.title"}}</h3>
+        <p>{{i18n "onboarding.publish.lead"}}</p>
+        <a href="https://ecorpus.eu/{{lang}}/doc/tutorials/embed.html">{{i18n "onboarding.publish.link"}}</a>
+      </div>
+    </div>
+  </div>
+</div>
+{{/if}}

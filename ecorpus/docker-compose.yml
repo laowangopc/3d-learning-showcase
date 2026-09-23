@@ -1,0 +1,53 @@
+name: eCorpus
+services:
+  postgres:
+    image: postgres:17
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres} #change if it is ever susceptible to be externally accessible
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URI: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-postgres}
+      # Relax the login rate limit for the end-to-end run, which logs in many
+      # times from a single container IP. Empty by default so real deployments
+      # started from this compose keep the brute-force limit active.
+      TEST: ${TEST:-}
+    healthcheck:
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - app_data:/app/files
+  test: #run end-to-end tests when selected
+    build:
+      context: source/e2e
+      args:
+        PLAYWRIGHT_VERSION: ${PLAYWRIGHT_VERSION:-1.49.1}
+    depends_on:
+      app:
+        condition: service_healthy
+    profiles:
+      - test
+    environment:
+      TEST_TARGET: "http://app:8000"
+volumes:
+  postgres_data:
+  app_data:

@@ -1,0 +1,103 @@
+
+
+table.list-table {
+  border-collapse: collapse;
+  width: 100%;
+  display: table;
+
+  @at-root
+    section > &,
+    .section > &
+  {
+    --m: calc(var(--section-padding) * -1);
+    margin: 0 var(--m);
+    width: calc(-2 * var(--m) + 100%);
+    &:first-child{
+      margin-top: var(--m);
+    }
+    &:last-child{
+      margin-bottom: var(--m);
+    }
+  }
+
+  background: var(--color-element);
+  color: var(--color-text);
+
+
+  tbody tr:nth-child(2n+1){
+    background: var(--color-section);
+  }
+  tbody {
+    border-bottom: 1px solid var(--color-element);
+  }
+
+  tr:last-child {
+    border-bottom: 0;
+  }
+  th, td {
+    text-align: left;
+    padding: 15px;
+    box-sizing: border-box;
+  }
+  &.compact{
+    th, td {
+      padding: 5px;
+    }
+  }
+  thead{
+    position: sticky;
+    background: var(--color-element);
+    top: 0;
+  }
+
+  th {
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 1.2rem 1rem 0.8rem;
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
+  }
+
+  td {
+    border-left: 0;
+    border-right: 0;
+    white-space: nowrap;
+    &.compact{
+      width: 1%;
+    }
+    &.mono{
+      font-family: var(--font-mono, monospace);
+    }
+  }
+  tbody tr:hover{
+    background: var(--color-highlight);
+    transition: background-color 150ms ease-out;
+  }
+  &.disabled{
+    pointer-events: none;
+    cursor: default;
+    filter: brightness(0.5);
+  }
+}
+
+
+/* Table list wrapper — constrains horizontal overflow without affecting page layout */
+.list-table-wrap {
+  overflow-x: auto;
+  overflow-y: clip; /* clip (not hidden/auto) avoids creating a y-axis scroll container, which would break position:sticky on thead */
+
+  @at-root section > & {
+    --m: calc(var(--section-padding) * -1);
+    margin: 0 var(--m);
+    width: calc(-2 * var(--m) + 100%);
+    &:first-child { margin-top: var(--m); }
+    &:last-child  { margin-bottom: var(--m); }
+  }
+}
+// Vertical list of scope strings inside a table cell (one per line), so a
+// multi-scope token doesn't stretch its row horizontally.
+.scope-list{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

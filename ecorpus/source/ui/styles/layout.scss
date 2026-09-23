@@ -1,0 +1,434 @@
+
+@mixin flush-column{
+  .flush{
+    margin: 0 var(--flush-margin);
+    &:first-child{
+      margin-top: var(--flush-margin);
+    }
+    &:last-child{
+      margin-bottom: var(--flush-margin);
+    }
+  }
+}
+
+@mixin flush-row{
+  .flush{
+    margin: var(--flush-margin) 0;
+    &:first-child{
+      margin-left: var(--flush-margin);
+    }
+    &:last-child{
+      margin-right: var(--flush-margin);
+    }
+  }
+}
+
+
+section, .section{
+  --section-padding: 1rem;
+  --caret-width: 2px;
+  position: relative;
+  background: var(--color-section);
+  box-shadow: 0px 0px 8px color-mix(in srgb, var(--color-dark) 50%, transparent);
+
+  &.container{
+    max-width: 1200px;
+    margin: 1rem auto;
+  }
+
+  &::before, &::after{
+    content: "";
+    position: absolute;
+    height: 41px;
+    width: 41px;
+
+    pointer-events: none;
+    border-color: var(--color-primary);
+    border-style: solid;
+  }
+  &::before{
+    top: 0;
+    left: 0;
+    border-width: var(--caret-width) 0 0 var(--caret-width);
+  }
+  &::after{
+    bottom: 0;
+    right: 0;
+    border-width: 0 var(--caret-width) var(--caret-width) 0;
+  }
+
+
+  padding: var(--section-padding);
+  margin-bottom: var(--section-padding);
+  --flush-margin: calc(-1 * var(--section-padding));
+
+
+  .flush {
+
+    display:block;
+    height: auto;
+    width: calc( 100% + 2rem);
+    
+    img{
+      display:block;
+      height: auto;
+      width: 100%;
+    }
+  }
+  @include flush-column();
+
+  h1, h2, h3, h4, h5, h6{
+    &:first-child{
+      margin-top: 0;
+    }
+  }
+
+  /* Handle nested sections */
+  > section, > .section {
+    padding: var(--section-padding) 0;
+    &::before{
+      display: none;
+    }
+    &::after{
+      height: var(--caret-width);
+      left: 20px;
+      right: 20px;
+      bottom: calc(var(--section-padding) * -0.5 + var(--caret-width));
+      width: auto;
+    }
+
+    &:first-child{
+      padding-top: 0;
+    }
+    &:last-child{
+      padding-bottom: 0;
+      margin-bottom: 0;
+      &::after{
+        display: none;
+      }
+    }
+  }
+
+  
+}
+
+.section-column{
+  display: flex;
+  gap: var(--section-padding);
+  //Row or column layout is set depending on which part of the grid the columns are in
+  >.col{
+    flex: 1 1 50%;
+    min-width: 0;
+  }
+}
+
+
+
+
+.main-grid{
+  display: grid;
+
+  /// Base grid template ///
+  gap: var(--grid-gap, .5rem);
+  grid-template-rows: min-content auto;
+  grid-auto-rows: auto;
+  grid-template-columns: minmax(auto, 300px) minmax(auto, var(--col-width)) minmax(auto, 300px);
+  grid-template-areas:
+    '. header .'
+    'toolbar content sidebar';
+
+  // Grid template media queries
+  @media screen and (max-width: 1600px){
+    grid-template-columns: minmax(auto, 300px) minmax(auto, var(--col-width)) 1fr;
+      grid-template-areas:
+    '. header .'
+    'toolbar content .'
+    '. sidebar .';
+  }
+  
+  // Small screen handling block. We display either grid-content or grid-toolbar
+  @media screen and (max-width: 992px){
+    grid-template-columns: auto;
+    grid-template-rows: min-content min-content auto min-content;
+    grid-template-areas:
+      'header'
+      'toolbar'
+      'content'
+      'sidebar';
+    padding: 0 .25rem;
+  }
+
+  /// Side backgrounds ///
+
+  &:not(:has(.grid-sidebar))::after {
+    content: "";
+    opacity: 0.4;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center top;
+    pointer-events: none;
+  }
+
+  &:not(:has(.grid-sidebar, .grid-fullwidth))::after{
+    grid-area: sidebar;
+    background-image: url("../assets/images/muse.webp");
+  }
+
+  .grid-sidebar{
+    grid-area: sidebar;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+
+  /// Grid header ///
+  .grid-header,  > h1:only-of-type{
+    grid-area: header;
+    position: relative;
+    min-width: 0;
+    word-break: break-word;
+    &:is(h1){
+      margin-bottom: -0.6rem;
+      ~ .grid-content, ~ .grid-toolbar{
+        margin-top: 1.8rem;
+      }
+    }
+  }
+  //Some styles only applies if grid-header is a h1
+
+
+  .grid-toolbar{
+    grid-area: toolbar;
+    justify-self: center;
+    position: relative;
+    min-width: 0;
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    padding-left: .25rem;
+
+    section, .section{
+      display: flex;
+      flex-direction: column;
+      @include flush-column();
+    }
+
+    .section-column{
+      @media screen and (max-width: 992px) and (min-width: 576px){
+        flex-direction: row;
+        @include flush-row();
+      }
+    }
+    > h3 :first-child,
+    > nav > h3:first-child{
+      margin-block-start: 0;
+    }
+    @media screen and (min-width: 992px){
+      &::after{
+        content: url("../assets/images/scroll.webp");
+        opacity: 0.2;
+      }
+    }
+  }
+  .grid-content, > section:only-of-type{
+    grid-area: content;
+    position: relative;
+    min-width: 0;
+  }
+
+  .grid-fullwidth{
+    grid-column: 1 / -1;
+    position: relative;
+    min-width: 0;
+  }
+}
+
+.list-tasks{
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.list-grid{
+  display:grid;
+  gap: 5px;
+  grid-template-columns: auto;
+
+  @media (min-width: 610px){
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1600px){
+    grid-template-columns: repeat(4, 1fr);
+  }
+  &.list-grid-compact{
+    @media (min-width: 576px){
+      grid-template-columns: repeat(3, 1fr);
+    }
+    @media (min-width: 992px){
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (min-width: 1200px){
+      grid-template-columns: repeat(5, 1fr);
+    }
+    @media (min-width: 1600px){
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+}
+
+.list-items{
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+
+footer {
+  color: var(--color-text);
+  background-color: var(--color-section);
+  min-height: var(--nav-height);
+  padding-right: 105px;
+  padding-left: 105px;
+  position: relative;
+
+  nav{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  #change-locale{
+    height: var(--nav-height);
+  }
+
+  @media (max-width: 576px){
+    padding-left: 1rem;
+    height: auto;
+    nav{
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
+
+
+.tabs{
+  .tab{
+    display: none;
+    width: 100%;
+    
+    &:first-child:not(:has(~ .tab:target)),
+    &:target {
+      display: block;
+    }
+  }
+}
+
+
+
+.row{
+  flex-direction: row;
+}
+.column{
+  flex-direction: column;
+}
+
+.two-columns{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+
+.collapse:not([aria-expanded="true"]){
+  display: none !important;
+}
+
+.hidden{
+  display: none !important;
+}
+
+// matched for large screens only
+@media screen and (min-width: 992px){
+  .lg-hidden{
+    display: none !important;
+  }
+
+  .lg-column{
+    flex-direction: column;
+  }
+
+  .btn-toggle.toggle-md{
+    display: none !important;
+  }
+}
+
+// matched for everything except large screens
+@media screen and (max-width: 992px){
+  .lg-only{
+    display: none !important;
+  }
+
+  .md-collapse:not([aria-expanded="true"]){
+    display: none !important;
+  }
+  .md-absolute{
+    position: absolute;
+    z-index: 1;
+  }
+
+  .md-row{
+    flex-direction: row !important;
+  }
+
+  .md-column{
+    flex-direction: column !important;
+  }
+
+  .md-stretch{
+    justify-content: stretch;
+  }
+}
+
+// matched for everything except small screens
+@media screen and (min-width: 576px){
+  .sm-only{
+    display: none !important;
+  }
+  .btn-toggle.toggle-sm{
+    display: none !important;
+  }
+}
+
+// Matched small screens only
+@media screen and (max-width: 576px){
+  .sm-hidden{
+    display: none !important;
+  }
+  .sm-collapse:not([aria-expanded="true"]){
+    display: none !important;
+  }
+  .sm-absolute{
+    position: absolute;
+    z-index: 1;
+  }
+
+  .sm-row{
+    flex-direction: row;
+  }
+  
+  .sm-column{
+    flex-direction: column;
+  }
+}
+
+
+//Other kinds of conditional displays
+[aria-expanded="false"] > .if-expanded{
+  display: none;
+}
+
+[aria-expanded="true"] > .if-collapsed{
+  display: none;
+}

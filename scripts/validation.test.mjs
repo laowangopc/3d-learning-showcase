@@ -1,0 +1,13 @@
+import { runtimeUrl } from './runtime-paths.mjs';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const {parseMetadata,sourceLink,validateGlb,validateNotes} = await import(runtimeUrl('build/server/learning/validation.js'));
+const meta={title:'鱼体观察',kind:'model',creator:'作者',sourceName:'自制',license:'unknown',rightsConfirmed:true};
+test('UTF-8 fields survive, upload declaration cannot forge a review',()=>{const m=parseMetadata({...meta,rightsReview:{approved:true}});assert.equal(m.title,'鱼体观察');assert.equal(m.rightsReview,undefined);});
+test('missing rights declaration rejected',()=>assert.throws(()=>parseMetadata({...meta,rightsConfirmed:false})));
+test('unsafe URL schemes and embedded credentials rejected',()=>{for(const s of ['javascript:alert(1)','data:text/html,test','https://name:password@example.com'])assert.throws(()=>sourceLink(s));});
+test('empty or spoofed GLB rejected',()=>assert.throws(()=>validateGlb(Buffer.from('not a glb'))));
+test('metadata size bound',()=>assert.throws(()=>parseMetadata({...meta,title:'字'.repeat(101)})));
+test('note IDs unique, position constrained, kind respected',()=>{const n={id:'a',title:'标题',body:'观察内容',position:{yaw:1,pitch:0}};assert.throws(()=>validateNotes({expectedVersion:1,entries:[n,n]},'panorama'));assert.throws(()=>validateNotes({expectedVersion:1,entries:[n]},'model'));assert.throws(()=>validateNotes({expectedVersion:1,entries:[{...n,position:{yaw:100,pitch:0}}]},'panorama'));assert.equal(validateNotes({expectedVersion:1,entries:[n]},'panorama').entries.length,1);});
+test('real CC0 sample self-contained and external-reference variant rejected',async t=>{let b;try{b=await readFile(runtimeUrl('samples/avocado.glb'));}catch{t.skip('Run prepare-samples first');return;}validateGlb(b);const json=validateGlb(b);json.buffers[0].uri='https://example.invalid/external.bin';let j=Buffer.from(JSON.stringify(json));j=Buffer.concat([j,Buffer.alloc((4-j.length%4)%4,0x20)]);const binOffset=20+b.readUInt32LE(12);const result=Buffer.alloc(20+j.length+b.length-binOffset);result.write('glTF');result.writeUInt32LE(2,4);result.writeUInt32LE(result.length,8);result.writeUInt32LE(j.length,12);result.writeUInt32LE(0x4e4f534a,16);j.copy(result,20);b.copy(result,20+j.length,binOffset);assert.throws(()=>validateGlb(result));});

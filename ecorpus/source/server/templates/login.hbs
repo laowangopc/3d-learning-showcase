@@ -1,0 +1,129 @@
+<div class="landing-page grid-fullwidth">
+
+  <div class="user-login">
+    <div class="tabs tabs-reverse">
+      <div class="tab" id="login">
+        <h2>{{ i18n "nav.login" }}</h2>
+
+        <form id="userlogin" class="form-control" name="{{i18n "labels.signin"}}" method="POST"
+          action="/auth/login?redirect={{#if redirect}}{{encodeURI redirect}}{{else}}{{encodeURI location}}{{/if}}"
+          enctype="application/x-www-form-urlencoded"
+          autocomplete="on" autocapitalize="none"
+        >
+          <div class="form-item">
+            <label for="username">{{i18n "labels.username"}}</label>
+            <input type="text" autocomplete="username" name="username" id="username" required="">
+          </div>
+          <div class="form-group">
+            <div class="form-item">
+              <label for="password">{{i18n "labels.password"}}</label>
+              <input type="password" autocomplete="current-password" name="password" id="password" required="">
+            </div>
+            <div class="form-item" id="password-toggle-item" style="display:none;">
+              <label for="password-toggle" style="flex-grow: 1;">{{i18n "labels.showPassword"}}</label>
+              
+              <input type="checkbox" id="password-toggle">
+            </div>
+            <script>
+              (function registerPasswordVisibilityToggle(){
+                const item = document.querySelector("#password-toggle-item");
+                const toggle = document.querySelector("#password-toggle");
+                const input = document.querySelector('input[name="password"]');
+                if(!item || !toggle || !input) return console.warn("Password toggle controls not found");
+                toggle.addEventListener("change", function(){
+                  input.type = toggle.checked ? "text" : "password";
+                });
+                item.style.removeProperty("display");
+              })();
+            </script>
+          </div>
+
+          <div id="login-form-error">
+            {{#if error}}
+            <span class="text-error" role="alert">{{i18n (join "errors" error separator=".")}}</span>
+            {{/if}}
+          </div>
+
+          <div class="form-group">
+            <div class="form-item">
+              <input class="btn btn-primary" type="submit" value="{{ i18n "labels.signin" }}">
+            </div>
+          </div>
+        </form>
+
+        <div class="recovery-link">
+          <a style="cursor:pointer;" href="#passwordRecovery">{{ i18n "labels.forgottenPassword" }}</a>
+        </div>
+      </div>
+      <div class="tab" id="passwordRecovery">
+        <h2>{{ i18n "titles.recoverPassword" }}</h2>
+        <form id="userrecover" class="form-control" name="{{i18n "labels.forgottenPassword"}}"
+          autocomplete="on" 
+        >
+          <p>{{i18n "leads.passwordRecovery"}}</p>
+          <div class="form-group">
+            <div class="form-item">
+              <label for="recover-username">{{i18n "labels.username"}}</label>
+              <input type="text" minlength="3" name="username" id="recover-username" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-item">
+              <input class="btn btn-primary" type="submit" value="{{ i18n "labels.sendLoginLink" }}">
+            </div>
+          </div>
+        </form> 
+        <div class="recovery-link">
+          <a style="cursor:pointer;" href="#login">{{ i18n "labels.signin" }}</a>
+        </div>
+        <script>
+          (function registerPasswordRecoveryForm(){
+            const form = document.querySelector("#userrecover");
+            if(!form) return console.warn("Can't find password recovery form");
+            form.onsubmit = (ev)=>{
+              ev.preventDefault();
+
+              const username = form.username?.value;
+              if(!username) return false;
+
+              const loader = document.createElement("spin-loader");
+              loader.active = true;
+              const parent =  form.parentNode;
+              parent.replaceChild(loader, form);
+              fetch(`/auth/login/${encodeURIComponent(username)}/link`,{
+                method: "POST",
+                headers: {"Accept": "application/json"}
+              }).then(async r=>{
+                if(!r.ok){
+                  let text = await r.text();
+                  try{
+                    let json = JSON.parse(text);
+                    throw new Error(json.message ?? json);
+                  }catch(e){
+                    throw new Error(text);
+                  }
+                }
+                const result = document.createElement("p");
+                result.role = "alert";
+                result.innerText = `{{i18n "leads.linkSent"}}`;
+                parent.replaceChild(result, loader);
+              }).catch(e=>{
+                console.warn("Failed to send recovery email: ", e);
+                const result = document.createElement("p");
+                result.className = "text-error";
+                result.role = "alert";
+                result.innerText = e.message;
+                parent.replaceChild(result, loader);
+                parent.insertBefore(form, result);
+              });
+              return false;
+            }
+          })()
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,39 @@
+
+.text-main{
+  color: var(--color-text) !important;
+}
+
+.text-dark{
+  color: var(--color-highlight) !important;
+}
+
+.text-info {
+  color: var(--color-info) !important;
+}
+.text-success {
+  color: var(--color-success) !important; 
+}
+.text-warning{
+  color: var(--color-warning) !important; 
+}
+.text-error {
+  color: var(--color-error) !important; 
+}
+
+.text-primary{
+  color: var(--color-primary) !important;
+}
+
+.text-muted{
+  color: #666;
+}
+
+@mixin text-colors{
+  &.text-info, &.text-success, &.text-warning, &.text-error, &.text-primary{
+    @content;
+  }
+}
+
+.text-right{
+  text-align: right !important;
+}

@@ -1,0 +1,39 @@
+import { Request, Response } from "express";
+import { getLocals, getUser, useTemplateProperties } from "../../../utils/locals.js";
+
+/**
+ * Send a test email
+ * Exposes all possible logs from the emailer
+ * This is a protected route and requires admin privileges
+ */
+export default async function handleRenderMail(req :Request, res :Response){
+  const {name} = req.params;
+  const {config} = getLocals(req);
+  let {username} = req.query
+  const {username:requester, email} = getUser(req) ?? {};
+  if(typeof username !== "string" || !username.length){
+    username = requester;
+  }
+
+  useTemplateProperties(req, res);
+  const mail_content = await getLocals(req).templates.render(`emails/${name}`, {
+    layout: null,
+    brand: config.get("brand"),
+    hostname: config.get("hostname"),
+    name: username,
+    url: "http://example.com/foo",
+  });
+
+  res.status(200).set("Content-Type", "text/html; encoding=utf-8").send(`<!DOCTYPE html><html>
+    <head>
+      <style type="text/css">
+        html, body{
+          color-scheme: light dark;
+          background-color: Canvas;
+          pointer-events: none;
+        }
+      </style>
+    </head>
+    <body>${mail_content}</body>
+  </html>`);
+}

@@ -1,0 +1,53 @@
+@import "./text.scss";
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+}
+
+
+h1 {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+  color: var(--color-text);
+  padding: .5rem 0.2rem 0rem 0.2rem;
+  margin: 1.3rem 0 1.8rem 0;
+  border-bottom: 0.6rem solid var(--color-primary);
+  @include text-colors {
+    border-bottom-color: currentColor;
+  }
+
+  > .title-caret{
+    position: absolute;
+    left: 0;
+    height: 100%;
+    text-decoration: none;
+    &:hover{
+      color: var(--color-primary);
+    }
+  }
+}
+
+h2 {
+  &:not(:empty){
+    border-left: 0.7rem solid var(--color-primary);
+    &.title-right {
+      text-align: right;
+      border-left: 0;
+      border-right: 0.7rem solid var(--color-primary);
+      padding-right: 0.8rem;
+    }
+  }
+  @include text-colors {
+    border-color: currentColor;
+  }
+  padding: 0.5rem 0 0 0.8rem;
+}
+
+.action-title-wrap{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+}

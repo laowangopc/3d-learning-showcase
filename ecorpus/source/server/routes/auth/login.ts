@@ -1,0 +1,239 @@
+import { createHmac } from "crypto";
+import { NextFunction, Request, RequestHandler, Response } from "express";
+import User, { SafeUser } from "../../auth/User.js";
+import { BadRequestError, ForbiddenError, HTTPError, NotFoundError, UnauthorizedError } from "../../utils/errors.js";
+import { AppLocals, getHost, getLocals, getSession, getTaskScheduler, getUser, getUserManager, setUser, validateRedirect, useTemplateProperties  } from "../../utils/locals.js";
+import { sendEmail } from "../../tasks/handlers/sendEmail.js";
+
+/**
+ * Handler for login flow. Used for automated AND interactive login flows, which makes it a bit more complicated
+ * Due to this, it handles (most of) its own errors contrary to most handlers. 
+ */
+export async function postLogin(req :Request, res :Response){
+  const {sessionMaxAge} = getLocals(req);
+  let userManager = getUserManager(req);
+  let {redirect} = req.query;
+  let {username, password} = req.body;
+
+  if(!username) throw new BadRequestError("Username not provided");
+  else if(typeof username !="string") throw new BadRequestError("Bad username format");
+  if(!password) throw new BadRequestError("Password not provided");
+  else if(typeof password !="string") throw new BadRequestError("Bad password format");
+  let user: User;
+  try{
+    user = await userManager.getUserByNamePassword(username, password);
+  }catch(e: any){
+    if(e instanceof NotFoundError){ //cast NotFound as Unauthorized
+      e = new UnauthorizedError(`Username not found`);
+    }
+    const code :number = e.code ?? 500;
+    const rawMessage = (e instanceof HTTPError)? e.message.slice(6): e.message;
+    res.status(code);
+    res.format({
+      "application/json": ()=> {
+        res.send({ code, message: `${e.name}: ${e.message}` });
+      },
+      "text/html": ()=>{
+        res.render("login", {
+          error: rawMessage,
+        });
+      },
+      "text/plain": ()=>{
+        res.send(e.message);
+      },
+    });
+    return; //Stop here.
+  }
+
+  let safeUser = User.safe(user);
+
+  //Open a server-side session: the cookie only carries the opaque sid
+  const expires = new Date(Date.now() + sessionMaxAge);
+  const {sid} = await userManager.createSession(user.uid, {expires, userAgent: req.get("User-Agent")});
+  req.session = {lang: getSession(req)?.lang, sid, expires: expires.valueOf()};
+  setUser(res, safeUser, "session");
+
+  if(redirect && typeof redirect === "string"){
+    return res.redirect(302, validateRedirect(req, redirect).toString());
+  }else{
+    res.format({
+      "application/json": ()=> {
+        res.status(200).send(safeUser);
+      },
+      "text/html": ()=>{
+        res.redirect(302, "/ui/");
+      },
+      "text/plain": ()=>{
+        res.status(200).send(`${safeUser.username} (${safeUser.uid})`);
+      },
+    });
+  }
+}
+
+export async function getLogin(req :Request, res:Response){
+  let requester = getUser(req);
+  let { redirect:unsafeRedirect} = req.query;
+  let host = getHost(req);
+
+  const redirect = unsafeRedirect? validateRedirect(req, unsafeRedirect): undefined;
+  res.format({
+    "application/json": ()=> {
+      res.status(200).send(User.safe(requester ?? {}));
+    },
+    "text/html": ()=>{
+      if(requester && requester.level !== "none") return res.redirect(302, redirect ?redirect.pathname: "/ui/");
+      useTemplateProperties(req, res, ()=>{
+        res.render("login", {
+          title: "Login",
+          user: null,
+          redirect,
+        });
+      });
+    },
+    "text/plain": ()=>{
+      res.status(200).send(`${requester?.username} (${requester?.uid})`);
+    },
+  });
+};
+
+
+export async function getLoginPayload(req: Request, res: Response){
+  const {payload} = req.params;
+
+  let userManager = getUserManager(req);
+
+  let keys = (await userManager.getKeys());
+
+  const params = parseLoginPayload(keys, payload);
+  //Even though redirect should come from the signet JSON payload, we still should validate it, just in case...
+  const redirect = validateRedirect(req, params.redirect ?? "/ui/");
+
+  //Verify data is valid. First, expiration date
+  if(!params.expires || !Number.isInteger(params.expires)) throw new BadRequestError("Bad token payload");
+  else if(params.expires < Date.now()) throw new ForbiddenError("Token expired");
+  //Then verify the user has not been deleted or renamed
+  let user;
+  try{
+    user = await userManager.getUserByName(params.username);
+    if(user.uid != params.uid) throw new Error("uid mismatch");
+  }catch(e){
+    throw new BadRequestError(`Failed to parse login payload`);
+  }
+
+  //Open a server-side session: the cookie only carries the opaque sid
+  const expires = new Date(Date.now() + getLocals(req).sessionMaxAge);
+  const {sid} = await userManager.createSession(user.uid, {expires, userAgent: req.get("User-Agent")});
+  req.session = {lang: getSession(req)?.lang, sid, expires: expires.valueOf()};
+  setUser(res, User.safe(user), "session");
+
+  return res.redirect(302, redirect.toString());
+}
+
+
+interface LoginParams {
+  uid: number;
+  username: string;
+  expires :number;
+  redirect?:string;
+}
+
+/**
+ * Makes an authenticated link with embedded redirect
+ * @param key 
+ * @param param1 
+ * @param redirect 
+ * @returns 
+ */
+export function makeRedirect(key:string, {user, expiresIn, redirect}:{user:Pick<User,"uid"|"username">, expiresIn:number, redirect :URL}) :URL{
+  let expires = new Date(Date.now()+ expiresIn).valueOf();
+  let url = new URL(`/auth/payload/${formatLoginPayload(key, {uid: user.uid, username: user.username, expires, redirect: redirect.pathname})}`, redirect);
+  return url;
+}
+
+/**
+ * Parse a formatted login payload. Verify its signature and return the original parameter object
+ * Will throw {@link BadRequestError} if payload is invalid, or {@link ForbiddenError} if signature doesn't match
+ * @param payload 
+ */
+export function parseLoginPayload(keys: string[], payload: string) :LoginParams{
+  const parts = payload.split(".");
+  if(parts.length != 2){
+    throw new BadRequestError(`Bad login links parameters`);
+  }
+  const [sig, data] = parts;
+  if(!data || !sig){
+    throw new BadRequestError(`Bad login links parameters`);
+  }
+  if(!keys.some((key)=>{
+    return createHmac("sha512", key).update(data).digest("base64url") === sig;
+  })){
+    throw new ForbiddenError("payload doesn't match signature");
+  }
+  return JSON.parse(Buffer.from(data, "base64url").toString("utf-8"));
+}
+
+/**
+ * 
+ * @param key 
+ * @param params 
+ * @returns "<base64url-encoded signature>.<base64url-encoded parameters>""
+ */
+export function formatLoginPayload(key: string, params:Readonly<LoginParams>): string{
+  const data = Buffer.from(JSON.stringify(params)).toString("base64url");
+  const sig = createHmac("sha512", key).update(data).digest("base64url");
+  return `${sig}.${data}`;
+}
+
+export async function getLoginLink(req :Request, res :Response){
+  let {sessionMaxAge} = getLocals(req);
+  let {username} = req.params;
+  let {redirect:unsafeRedirect} = req.query
+  let userManager = getUserManager(req);
+  let user = await userManager.getUserByName(username);
+  let key = (await userManager.getKeys())[0];
+  const redirect = validateRedirect(req, ((typeof unsafeRedirect === "string")?unsafeRedirect:"/ui/"));
+
+  res.format({
+    "text/plain":()=>{
+      res.status(200).send(makeRedirect(key, {user, expiresIn: sessionMaxAge, redirect}).toString());
+    }
+  });
+}
+
+
+export async function sendLoginLink(req :Request, res :Response){
+  let {sessionMaxAge} = getLocals(req);
+  let {username} = req.params;
+  let userManager = getUserManager(req);
+  let taskScheduler = getTaskScheduler(req);
+
+  let user = await userManager.getUserByName(username);
+  if(!user.email){
+    throw new BadRequestError(`Requested user has no registered email`);
+  }
+  let key = (await userManager.getKeys())[0];
+  let link = makeRedirect(
+    key,
+    {user, expiresIn: sessionMaxAge, redirect: getHost(req)},
+  );
+
+  let lang = "fr";
+  const mail_content = await getLocals(req).templates.render(`emails/connection_${lang}`, {
+    layout: null,
+    name: user.username,
+    lang: "fr",
+    url: link.toString()
+  });
+  //Don't await delivery: the task is persisted and logs are observable via the tasks UI
+  taskScheduler.run({
+    handler: sendEmail,
+    user_id: user.uid,
+    data: {
+      to: user.email,
+      subject: "Votre lien de connexion à eCorpus",
+      html: mail_content,
+    },
+  }).catch(err => console.error(`sendLoginLink to ${user.email} failed:`, err));
+
+  res.status(204).send();
+}

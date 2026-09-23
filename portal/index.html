@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>观察台 · 三维与全景教学资源</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./app.css">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">跳到观察区</a>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">◈</span><div><strong>观察台</strong><span>三维 · 全景 · 教学</span></div></div>
+    <p class="header-note">把难以到达的现场，带到眼前。</p>
+    <div class="account-actions"><span id="account-label">访客浏览</span><button id="login-open" class="quiet">登录</button><button id="my-resources-open" class="quiet" hidden>我的资源</button><button id="account-open" class="quiet" hidden>账号</button><button id="upload-open" class="primary">＋ 上传资源</button></div>
+  </header>
+  <div id="status" class="status" hidden><p id="status-message" role="status" aria-live="polite" aria-atomic="true"></p><button id="status-dismiss" type="button" aria-label="关闭提示">×</button></div>
+  <main class="layout">
+    <aside class="library" aria-label="资源库">
+      <div class="section-heading"><h1>探索资源</h1><span class="library-label">LIBRARY</span></div>
+      <button id="anatomy-source-shortcut" class="anatomy-shortcut source-shortcut" type="button" aria-pressed="false" hidden><span><strong>Anatomy 原项目</strong><small>原始 3D 模型 · 待授权复核</small></span><span id="anatomy-source-count" class="counter"></span></button>
+      <details id="library-filters" class="library-filters" open><summary>查找与筛选<span id="filter-summary">全部资源</span></summary><div class="filter-content">
+      <label class="search-label" for="search">查找名称、主题或来源</label>
+      <div class="search-wrap"><span class="search-icon" aria-hidden="true"></span><input id="search" type="search" placeholder="心脏、森林、太空…" autocomplete="off" aria-keyshortcuts="/"><kbd aria-hidden="true">/</kbd></div>
+      <div class="filters" role="group" aria-label="资源类型"><button data-kind="all" aria-pressed="true">全部</button><button data-kind="model" aria-pressed="false">三维模型</button><button data-kind="panorama" aria-pressed="false">720 全景</button></div>
+      <label class="search-label" for="category-filter">教学主题</label>
+      <select id="category-filter"><option value="">全部主题</option></select>
+      <button id="clear-filters" class="clear-filters quiet" type="button" hidden>清除筛选，查看全部</button>
+      <label class="mine-filter" id="mine-label"><input type="checkbox" id="mine"> 只看我的上传</label>
+      </div></details>
+      <div class="results-heading" role="status" aria-live="polite" aria-atomic="true"><span>可探索的资源</span><span><strong id="resource-count" class="counter">—</strong> 件</span></div>
+      <div id="resource-list" class="resource-list"><p class="empty">正在读取资源…</p></div>
+      <div class="library-pagination"><button id="library-prev" class="quiet" type="button" disabled>上一页</button><span id="library-page" aria-live="polite"></span><button id="library-next" class="quiet" type="button" disabled>下一页</button></div>
+      <div class="library-footer"><span class="availability-dot" aria-hidden="true"></span>每件资源都有自己的来源记录</div>
+    </aside>
+    <section id="workspace" class="workspace" tabindex="-1" aria-labelledby="resource-title">
+      <header class="workspace-heading"><div><div class="workspace-overline"><span class="workspace-label">观察空间</span><span aria-hidden="true">/</span><span id="resource-category" class="eyebrow">选择一件资源</span></div><h2 id="resource-title">从这里开始观察</h2></div><span id="resource-kind" class="type-badge" hidden></span></header>
+      <p id="selection-status" class="selection-status" role="status" aria-live="polite" hidden>正在打开资源…</p>
+      <div id="viewer-frame" class="viewer-frame"><div id="viewer" class="viewer" tabindex="0" aria-label="交互观察区"><div class="viewer-empty"><span aria-hidden="true">◎</span><h3>让知识有形可见</h3><p>选择左侧模型或全景，旋转、放大并记录发现。</p></div></div></div>
+      <div class="viewer-footer"><p id="interaction-hint">三维模型与完整球形全景，共用一个观察空间。</p><button id="reset-view" class="quiet" disabled><span aria-hidden="true">↺</span> 重置视角</button></div>
+      <section class="observation-prompt"><span class="eyebrow">从一个细节开始</span><p id="resource-description">先看整体，再观察局部的形态、纹理与空间关系。</p></section>
+    </section>
+    <aside class="details" aria-label="资源说明与笔记">
+      <section class="provenance"><div class="section-heading"><h2>关于这件资源</h2><span id="visibility" class="small-badge">未选择</span></div><dl id="provenance-fields"><dt>说明</dt><dd>选择资源后显示逐件记录。</dd></dl><details id="credit-details" class="credit-details"><summary>完整署名与处理说明</summary><dl id="credit-fields"></dl></details><p id="license-caution" class="fineprint">标注来源不等于获得授权。上传文件默认仅自己可见。</p><div class="detail-actions"><button id="copy-credit" class="quiet" disabled>复制署名</button><button id="download" class="quiet" disabled>↓ 下载资源包</button><button id="edit-open" class="quiet" hidden>编辑资源说明</button><button id="archive-resource" class="quiet" hidden>移入回收站</button></div><div id="admin-actions" hidden><button id="publish-open" class="quiet">核对并公开</button><a id="advanced-editor" target="_blank" rel="noopener">高级三维编辑 ↗</a></div></section>
+      <section class="notes-section"><div class="section-heading"><h2>观察笔记</h2><span id="note-version" class="counter"></span></div><p class="fineprint">笔记随资源保存；全景笔记可定位到观察方向。</p><div id="notes-list"><p class="empty">还没有观察笔记。</p></div><form id="note-form" hidden><label for="note-title">发现了什么？</label><input id="note-title" maxlength="100" required placeholder="例如：鳍的位置与形态"><label for="note-body">补充说明</label><textarea id="note-body" rows="3" maxlength="2000" required placeholder="写下观察结果或给学生的问题"></textarea><label id="anchor-label" class="checkbox-row" hidden><input id="note-anchor" type="checkbox" checked> 定位到当前全景方向</label><button type="submit" class="primary">保存笔记</button><button type="button" id="history-open" class="quiet">历史版本</button></form><p id="note-readonly" class="fineprint">上传者与管理员可以添加笔记。</p><div id="history-list" hidden></div></section>
+    </aside>
+  </main>
+  <button id="jump-to-view" class="jump-to-view" type="button" hidden>回到预览 ↑</button>
+  <footer class="page-footer">观察，让知识有形可见。<span>文件与笔记保存在当前服务</span></footer>
+  <dialog id="login-dialog"><form id="login-form"><div class="dialog-heading"><h2>登录观察台</h2><button type="button" data-close="login-dialog" aria-label="关闭登录">×</button></div><p>账号由管理员开通。需要上传资源时，请联系管理员开通教师账号。</p><label for="username">账号</label><input id="username" name="username" autocomplete="username" required><label for="password">密码</label><input id="password" name="password" type="password" autocomplete="current-password" required><p class="fineprint">忘记密码？请联系管理员重置，登录后可自行修改。</p><p id="login-error" class="form-error" role="alert"></p><button type="submit" class="primary">登录</button></form></dialog>
+  <dialog id="account-dialog">
+    <div class="dialog-heading"><h2>我的账号</h2><button type="button" data-close="account-dialog" aria-label="关闭账号">×</button></div>
+    <p id="account-summary"></p>
+    <form id="password-form">
+      <h3>修改密码</h3>
+      <label for="current-password">当前密码</label><input id="current-password" type="password" autocomplete="current-password" maxlength="128" required>
+      <label for="new-password">新密码</label><input id="new-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+      <label for="confirm-password">再次输入新密码</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+      <p class="fineprint">使用 12–128 个字符。修改后，其他设备需要重新登录。</p>
+      <p id="password-result" role="status"></p><button type="submit" class="primary">保存新密码</button>
+    </form>
+    <div class="manager-actions"><button id="accounts-open" class="quiet" hidden>管理账号</button><button id="logout" class="quiet" hidden>退出登录</button></div>
+  </dialog>
+  <dialog id="accounts-dialog" class="manager-dialog">
+    <div class="dialog-heading"><h2>账号管理</h2><button type="button" data-close="accounts-dialog" aria-label="关闭账号管理">×</button></div>
+    <section id="accounts-directory">
+    <div class="account-toolbar"><p class="fineprint">查看账号，或选择一个账号进行管理。</p><button id="account-new" type="button" class="primary">＋ 新建账号</button></div>
+    <label for="accounts-filter">账号状态</label><select id="accounts-filter"><option value="active">使用中</option><option value="all">全部账号</option><option value="disabled">已停用</option></select>
+    <p id="accounts-result" role="status"></p>
+    <div id="accounts-list" class="manager-list"></div><button id="accounts-more" class="quiet" hidden>加载更多账号</button>
+    </section>
+    <section id="accounts-editor" hidden>
+    <button id="account-back" type="button" class="quiet">← 返回账号列表</button>
+    <form id="account-manage-form" class="manager-form">
+      <h3 id="account-form-heading">开通账号</h3>
+      <label for="managed-username">账号</label><input id="managed-username" autocomplete="off" pattern="[a-zA-Z0-9_\-]{3,40}" maxlength="40" required aria-describedby="username-help">
+      <p id="username-help" class="fineprint">3–40 位字母、数字、短横线或下划线。</p>
+      <label for="managed-email">邮箱（选填）</label><input id="managed-email" type="email" maxlength="254" autocomplete="off">
+      <label for="managed-role">角色</label><select id="managed-role"><option value="create">教师 · 可上传资源</option><option value="use">学习者 · 浏览资源</option><option value="manage" hidden>资源管理者 · 旧角色</option><option value="admin">管理员 · 管理账号与公开资源</option><option value="none" hidden>停用账号</option></select>
+      <label for="managed-password">初始密码 / 新密码</label><input id="managed-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+      <p id="managed-password-help" class="fineprint">至少 12 个字符。编辑账号时，留空表示不修改密码；保存后该账号需要重新登录。</p>
+      <p id="account-edit-result" role="status"></p>
+      <div class="manager-actions"><button type="submit" class="primary">保存账号</button></div>
+    </form>
+    <section id="account-danger" class="account-danger" hidden><h3>停用账号</h3><p class="fineprint">停用后无法登录，已上传的资源仍会保留。</p><button id="account-disable" type="button" class="quiet">停用此账号</button></section>
+    </section>
+  </dialog>
+  <dialog id="my-resources-dialog" class="manager-dialog">
+    <div class="dialog-heading"><h2>资源工作台</h2><button type="button" data-close="my-resources-dialog" aria-label="关闭资源工作台">×</button></div>
+    <p id="storage-summary" class="fineprint"></p>
+    <div class="filters manager-tabs" role="group" aria-label="资源管理范围"><button id="workspace-mine" type="button" aria-pressed="true">我的资源</button><button id="workspace-review" type="button" aria-pressed="false" hidden>待审核</button><button id="workspace-trash" type="button" aria-pressed="false">回收站</button></div>
+    <form id="workspace-search-form" class="manager-search"><div><label for="workspace-search">查找资源</label><input id="workspace-search" type="search" maxlength="100" placeholder="名称、主题或来源"></div><div id="workspace-state-field"><label for="workspace-state">资源状态</label><select id="workspace-state"><option value="">全部状态</option><option value="draft">未提交</option><option value="pending">待审核</option><option value="changes">需修改</option><option value="published">已公开</option></select></div><button type="submit" class="quiet">查找</button></form>
+    <p id="workspace-result" role="status"></p><div id="workspace-list" class="manager-list"></div>
+    <div class="manager-actions"><button id="workspace-prev" type="button" class="quiet">上一页</button><span id="workspace-page" class="fineprint"></span><button id="workspace-next" type="button" class="quiet">下一页</button><button id="workspace-refresh" type="button" class="quiet">刷新状态</button></div>
+  </dialog>
+  <dialog id="reject-dialog"><form id="reject-form">
+    <div class="dialog-heading"><h2>退回修改</h2><button type="button" data-close="reject-dialog" aria-label="关闭退回修改">×</button></div>
+    <p id="reject-title"></p><label for="reject-message">需要补充或修改什么？</label><textarea id="reject-message" rows="4" maxlength="1000" required placeholder="例如：请补充此文件的授权说明链接。"></textarea><p class="fineprint">上传者会在资源工作台看到这条意见；资源不会公开。</p><p id="reject-error" class="form-error" role="alert"></p><button type="submit" class="primary">发送修改意见</button>
+  </form></dialog>
+  <dialog id="upload-dialog"><form id="upload-form"><div class="dialog-heading"><h2>上传资源</h2><button type="button" data-close="upload-dialog" aria-label="关闭上传">×</button></div><p>文件和来源说明一起保存。上传后仅自己与管理员可见。</p><label for="upload-file">选择文件</label><input id="upload-file" name="file" type="file" accept=".glb,.jpg,.jpeg,.png,.webp" required><p class="fineprint">支持 GLB；2:1 球形 JPG / PNG / WebP，宽 1024–8192 像素。每个文件不超过 64 MB。普通照片不会自动变为全景。</p><div class="form-grid"><div><label for="upload-title">资源名称</label><input id="upload-title" name="title" maxlength="100" required></div><div><label for="upload-category">教学主题</label><input id="upload-category" name="category" maxlength="50" placeholder="例如：自然科学"></div></div><label for="upload-description">观察提示</label><textarea id="upload-description" name="description" rows="2" maxlength="2000"></textarea><div class="form-grid"><div><label for="upload-creator">作者 / 权利人</label><input id="upload-creator" name="creator" maxlength="160" required></div><div><label for="upload-source">来源名称</label><input id="upload-source" name="sourceName" maxlength="100" placeholder="自制或原始发布机构" required></div></div><label for="upload-url">具体资源页面（自制可留空）</label><input id="upload-url" name="sourceUrl" type="url" maxlength="1500" placeholder="https://…"><div class="form-grid"><div><label for="upload-license">许可说明</label><select id="upload-license" name="license"><option value="unknown">待核对，仅自己使用</option><option value="CC0-1.0">CC0 1.0</option><option value="CC-BY-4.0">CC BY 4.0</option><option value="CC-BY-SA-4.0">CC BY-SA 4.0</option><option value="CC-BY-NC-4.0">CC BY-NC 4.0</option><option value="permission">自有权利或单独授权</option></select></div><div><label for="upload-license-url">许可 / 授权说明链接</label><input id="upload-license-url" name="licenseUrl" type="url" maxlength="1500"></div></div><label for="upload-attribution">需保留的署名说明</label><textarea id="upload-attribution" name="attribution" rows="2" maxlength="2000"></textarea><label class="checkbox-row"><input id="rights-confirmed" name="rightsConfirmed" type="checkbox" required> 我拥有上传和使用此文件的权利；引用来源不能替代授权。</label><p id="upload-error" class="form-error" role="alert"></p><button type="submit" class="primary">上传并保存</button></form></dialog>
+  <dialog id="publish-dialog"><form id="publish-form"><div class="dialog-heading"><h2>核对许可并公开</h2><button type="button" data-close="publish-dialog" aria-label="关闭许可核对">×</button></div><p>公开后所有访问者可浏览和下载。请核对到具体资源，不以平台首页或“教学用途”代替许可。</p><label for="review-url">许可证据页面</label><input id="review-url" type="url" maxlength="1500" required><label for="review-note">核对说明</label><textarea id="review-note" rows="4" maxlength="1000" required></textarea><label class="checkbox-row"><input id="review-confirmed" type="checkbox" required> 已核对本文件的展示、保存、再分发及署名要求。</label><p id="publish-error" class="form-error" role="alert"></p><button type="submit" class="primary">公开资源</button></form></dialog>
+  <dialog id="edit-dialog"><form id="edit-form"><div class="dialog-heading"><h2>编辑资源说明</h2><button type="button" data-close="edit-dialog" aria-label="关闭编辑">×</button></div><p>只修改说明和来源记录，不会替换已上传的文件。保存后资源会回到未公开状态，需要管理员重新核对许可。</p><div class="form-grid"><div><label for="edit-title">资源名称</label><input id="edit-title" name="title" maxlength="100" required></div><div><label for="edit-category">教学主题</label><input id="edit-category" name="category" maxlength="50"></div></div><label for="edit-description">观察提示</label><textarea id="edit-description" name="description" rows="2" maxlength="2000"></textarea><div class="form-grid"><div><label for="edit-creator">作者 / 权利人</label><input id="edit-creator" name="creator" maxlength="160" required></div><div><label for="edit-source">来源名称</label><input id="edit-source" name="sourceName" maxlength="100" required></div></div><label for="edit-url">具体资源页面</label><input id="edit-url" name="sourceUrl" type="url" maxlength="1500"><div class="form-grid"><div><label for="edit-license">许可说明</label><select id="edit-license" name="license"><option value="unknown">待核对，仅自己使用</option><option value="CC0-1.0">CC0 1.0</option><option value="CC-BY-4.0">CC BY 4.0</option><option value="CC-BY-SA-4.0">CC BY-SA 4.0</option><option value="CC-BY-NC-4.0">CC BY-NC 4.0</option><option value="permission">自有权利或单独授权</option></select></div><div><label for="edit-license-url">许可 / 授权说明链接</label><input id="edit-license-url" name="licenseUrl" type="url" maxlength="1500"></div></div><label for="edit-attribution">需保留的署名说明</label><textarea id="edit-attribution" name="attribution" rows="2" maxlength="2000"></textarea><label for="edit-modifications">文件处理说明</label><textarea id="edit-modifications" name="modifications" rows="2" maxlength="1000"></textarea><label class="checkbox-row"><input id="edit-rights-confirmed" type="checkbox" required> 我确认这份资源说明与当前文件的权利状态一致。</label><p id="edit-error" class="form-error" role="alert"></p><button type="submit" class="primary">保存说明</button></form></dialog>
+</body>
+</html>

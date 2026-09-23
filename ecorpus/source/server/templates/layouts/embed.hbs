@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+  <head>
+    {{> head }}
+    <style>
+      body{
+        padding: 0;
+      }
+      main{
+        padding: 0 8px;
+      }
+    </style>
+  </head>
+  <body>
+  <main>
+    {{{body}}}
+  </main>
+  <script src="/dist/js/corpus.js?ref={{ config.build_ref }}"></script>
+  </body>
+</html>

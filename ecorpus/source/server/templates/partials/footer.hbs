@@ -1,0 +1,23 @@
+
+<footer>
+  <nav class="nav-content">
+    <div class="nav-text-list">
+      {{#if brand}}<span class="nav-text" style="font-weight: bold;">{{brand}}</span>{{/if}}
+      <span class="nav-text lg-only">{{{i18n "leads.poweredByECorpus" }}}</span>
+      <span class="nav-text"><a target="_blank" href="https://ecorpus.eu">{{i18n "nav.documentation"}}</a></span>
+      <span class="nav-text"><a  target="_blank" href="mailto:contact@holusion.com">{{i18n "nav.reportBug"}}</a></span>
+    </div>
+
+    <form method="GET" id="change-locale" class="nav-end" style="margin: auto 1rem;">
+      <div class="form-item" style="padding: 0; height: 100%; display: flex; align-items: center;">
+        <label style="padding-right:.25rem"><ui-icon name="globe"></ui-icon></label>
+        <select aria-label="{{i18n "labels.language"}}" name="lang" onchange="this.form.submit()" style="width: auto;">
+          {{>inputs/option selected=(test lang "==" "en") value="en" text=(i18n "lang.en")}}
+          {{>inputs/option selected=(test lang "==" "fr") value="fr" text=(i18n "lang.fr")}}
+        </select>
+      </div>
+    </form>
+  </nav>
+  
+</footer>
+<notification-stack></notification-stack>

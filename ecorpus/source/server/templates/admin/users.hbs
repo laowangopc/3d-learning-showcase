@@ -1,0 +1,193 @@
+
+<div style="margin-bottom: 1.5rem; display: flex; flex-direction: row; justify-content: space-between; flex-wrap: wrap; align-items: end;">
+  <h2>{{i18n "titles.userManager"}}</h2>
+  {{#if (test @root.user.level "==" "admin")}}
+    <button class="btn btn-main" aria-label="{{i18n "labels.createUser"}}" onclick="document.querySelector('#create-user-modal').showModal()">
+      <ui-icon name="plus"></ui-icon>
+      {{i18n "buttons.create"}}
+    </button>
+  {{/if}}
+</div>
+
+<form class="form-control" method="GET" action="/ui/admin/users" style="padding-bottom: 1rem;">
+  <div class="form-item">
+    <input class="search-box-input" type="search" name="match" id="user-search" aria-label="{{i18n "titles.search"}}" placeholder="{{i18n "labels.searchUserPlaceholder"}}"
+      value="{{params.match}}">
+    <button class="btn btn-main" style="margin-top:0" type="submit" aria-label="{{i18n "titles.search"}}"><ui-icon
+        name="search"></ui-icon></button>
+  </div>
+</form>
+
+<div class="list-table-wrap users-list flush" style="position:relative;">
+  <style>
+    .users-list table.list-table td.col-name,
+    .users-list table.list-table td.col-email {
+      white-space: normal;
+      word-break: break-word;
+      max-width: 20em;
+    }
+    .users-list table.list-table td.col-level,
+    .users-list table.list-table td.col-actions{
+      padding: 0 15px;
+    }
+    .users-list table.list-table td.col-level {
+      min-width: 9em;
+    }
+    .users-list table.list-table td.col-level select {
+      width: 100%;
+    }
+  </style>
+  <table class="list-table">
+    <thead><tr>
+        <th>uid</th>
+        <th>{{i18n "labels.username"}}</th>
+        <th>{{i18n "labels.email"}}</th>
+        <th>{{i18n "labels.role"}}</th>
+        <th></th>
+    </tr></thead>
+    <tbody>
+      {{#each users}}
+        <tr aria-labelledby="user-row-{{uid}}">
+          <td class="compact" style="font-family:monospace;">{{uid}}</td>
+          <td class="col-name" id="user-row-{{uid}}">{{username}}</td>
+          <td class="col-email">{{#if email}}<a href="mailto:{{email}}">{{email}}</a>{{else}}&mdash;{{/if}}</td>
+          <td class="col-level">
+            {{#if (test @root.user.level "==" "admin")}}
+              {{#unless (test uid "==" ../user.uid)}}
+              <submit-fragment method="PATCH" action="/users/{{uid}}" encoding="application/json"  submit="level" onsubmit="window.location.reload()">
+                <form class="form-control" autocomplete="off">
+                  <div class="form-item">
+                    <select name="level" aria-label="{{i18n "labels.role"}}">
+                      {{> inputs/option selected=(test "use" "==" level) value="use" text=(i18n "fields.userRoles.use")}}
+                      {{> inputs/option selected=(test "create" "==" level) value="create" text=(i18n "fields.userRoles.create")}}
+                      {{> inputs/option selected=(test "manage" "==" level) value="manage" text=(i18n "fields.userRoles.manage")}}
+                      {{> inputs/option selected=(test "admin" "==" level) value="admin" text=(i18n "fields.userRoles.admin")}}
+                    </select>
+                  </div>
+                </form>
+              </submit-fragment>
+              {{else}}
+              <div title="can't change self role">{{level}}</div>
+              {{/unless}}
+            {{else}}
+                <div>{{level}}</div>
+            {{/if}}
+          </td>
+          <td class="compact col-actions">
+          {{#if (test @root.user.level "==" "admin")}}
+            <div style="display:flex; justify-content:end;gap:.6rem;">
+              <button data-username="{{username}}" aria-label="{{i18n "labels.loginLink"}}" title="{{i18n "labels.loginLink"}}" class="btn btn-inline btn-icon btn-loginlink">
+                <ui-icon name="key"></ui-icon>
+              </button>
+              {{#if (test level "!=" "admin")}}
+              <submit-fragment method="DELETE" action="/users/{{uid}}" encoding="application/json"  onsubmit="window.location.reload()">
+                <form>
+                  <button role="submit" class="btn btn-inline btn-icon btn-danger" aria-label="{{i18n "labels.delete"}}" title="{{i18n "labels.delete"}}">
+                    <ui-icon name="trash"></ui-icon>
+                  </button>
+                </form>
+              </submit-fragment>
+              {{/if}}
+            </div>
+          {{/if}}
+          </td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+{{#if users.length}}
+  {{#with pager}}
+    {{> pager }}
+  {{/with}}
+{{else}}
+  {{#if pager.previous}}
+    {{#with pager}}
+      {{> pager }}
+    {{/with}}
+  {{else if params.match}}
+    <div style="text-align: center;">{{i18n "leads.noResults"}}</div>
+  {{else}}
+    <div style="text-align: center;">No user registered. Click the <ui-icon name="plus"></ui-icon> to add one</div>
+  {{/if}}
+{{/if}}
+
+{{#if (test @root.user.level "==" "admin")}}
+<dialog id="create-user-modal" aria-labelledby="create-user-dialog-title">
+  <form id="usercreate" method="POST" action="/users" autocomplete="off" class="form-control">
+    <div style="position: relative">
+      <h2 id="create-user-dialog-title">{{i18n "labels.createUser"}}</h2>
+      <button 
+        style="position:absolute;top:0;right: 0"
+        class="btn btn-transparent btn-small btn-inline btn-danger"
+        onclick="document.querySelector('#create-user-modal').close()"
+        title="{{i18n "labels.close"}}"
+      >
+        <ui-icon name="close"></ui-icon>
+      </button>
+    </div>
+    
+    <div class="form-item">
+      <label for="new-user">{{i18n "labels.username"}}</label>
+      <input type="text" name="username" id="new-user" autocomplete="off" required>
+    </div>
+    <div class="form-item">
+      <label for="new-email">{{i18n "labels.email"}}</label>
+      <input type="email" name="email" id="new-email" autocomplete="off" data-bwignore="true">
+    </div>
+    <div class="form-item">
+      <label for="new-password">{{i18n "labels.password"}}</label>
+      <input type="text" style="-webkit-text-security: disc; text-security: disc;" name="password" id="new-password" autocomplete="new-password" data-bwignore="true" minlength="8" required>
+    </div>
+    <div class="form-item">
+      <select name="level" aria-label="{{i18n "labels.role"}}">
+        <option value="use">{{i18n "fields.userRoles.use"}}</option>
+        <option selected value="create">{{i18n "fields.userRoles.create"}}</option>
+        <option value="manage">{{i18n "fields.userRoles.manage"}}</option>
+        <option value="admin">{{i18n "fields.userRoles.admin"}}</option>
+      </select>
+    </div>
+    <div class="form-item" style="display:flex; flex-direction:row-reverse; justify-content:flex-end; align-items:center; gap:.5rem;">
+      <label for="send_onboarding">{{i18n "labels.sendOnboardingEmail"}}</label>
+      <input type="checkbox" name="send_onboarding" id="send_onboarding" value="on">
+    </div>
+    <div class="form-item" style="margin-top: 15px">
+      <input class="btn" type="submit" value="{{i18n "buttons.submit"}}" >
+    </div>
+  </form>
+</dialog>
+{{/if}}
+
+
+<script type="module">
+  let notifications = document.querySelector("notification-stack");
+  function notify(text, severity, timeout){
+    if(!notifications || !notifications.constructor.show){
+      console.warn("Trying to show notification but notification stack is not reachable");
+      console.log(`[${severity}]: ${text}`);
+      return;
+    }
+    notifications.constructor.show(text, severity, timeout);
+  }
+
+  function createLoginlink(){
+    let username = this.dataset.username;
+    fetch(`/auth/login/${encodeURIComponent(username)}/link`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "text/plain"
+            },
+        }).then(async r=>{
+            if(!r.ok) throw new Error(`[${r.status}] ${r.statusText}`);
+            await navigator.clipboard.writeText(await r.text());
+            notify("Login link copied to clipboard", "info", 7000);
+        }).catch(e=>{
+            console.error(e);
+            return notify(`Failed to create login link : ${e.message}`, "error", 10000);
+        })
+  }
+
+  for(let btn of document.querySelectorAll(".btn-loginlink[data-username]")){
+    btn.addEventListener("click", createLoginlink);
+  }
+</script>

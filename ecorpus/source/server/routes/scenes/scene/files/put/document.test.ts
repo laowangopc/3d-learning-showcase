@@ -1,0 +1,159 @@
+import fs from "fs/promises";
+import path from "path";
+import { randomBytes } from "crypto";
+
+import request from "supertest";
+
+import User, { UserLevels } from "../../../../../auth/User.js";
+import UserManager from "../../../../../auth/UserManager.js";
+import uid from "../../../../../utils/uid.js";
+import Vfs from "../../../../../vfs/index.js";
+
+import { fixturesDir } from "../../../../../__test_fixtures/fixtures.js";
+
+describe("PUT /scenes/:scene/scene.svx.json", function(){
+  
+  let vfs :Vfs, userManager :UserManager, user :User, admin :User;
+  let sampleDocString :string;
+  let titleSlug :string, scene_id :number, sampleDoc :any;
+  let firstDocId :number;
+
+  this.beforeAll(async function(){
+    let locals = await createIntegrationContext(this);
+    await locals.config.set("enable_document_merge", true);
+    vfs = locals.vfs;
+    userManager = locals.userManager;
+    user = await userManager.addUser("bob", "12345678");
+    admin = await userManager.addUser("alice", "12345678", "admin");
+
+    sampleDocString = await fs.readFile(path.resolve(fixturesDir,"documents/01_simple.svx.json"), {encoding:"utf8"});
+  });
+
+  this.beforeEach(async function(){
+    //Initialize a unique scene for each test
+    titleSlug = this.currentTest?.title.replace(/[^\w]/g, "_").slice(0, 15)+"_"+randomBytes(4).toString("base64url");
+    scene_id = await vfs.createScene(titleSlug, user.uid);
+    sampleDoc = JSON.parse(sampleDocString);
+    firstDocId = (await vfs.writeDoc(sampleDocString, {scene: scene_id, user_id: user.uid, name: "scene.svx.json", mime: "application/si-dpo-3d.document+json"})).id;
+  });
+
+
+
+  it("can PUT a scene's document", async function(){
+    sampleDoc.asset.copyright = "Something Else";
+    await request(this.server).put(`/scenes/${titleSlug}/scene.svx.json`)
+    .set("Authorization", await bearer("bob"))
+    .set("Content-Type", "application/si-dpo-3d.document+json")
+    .send(sampleDoc)
+    .expect(204);
+
+    let {ctime, mtime, size, data, id, ...doc} =  await vfs.getDoc(scene_id);
+    expect(doc).to.deep.equal({
+      name: 'scene.svx.json',
+      author_id: user.uid,
+      author: user.username,
+      generation: 2,
+      hash: "vpX0f_vG7OW_3GwXOPme_Cv2qNLoINjYdTX770KMdEg",
+      mime: "application/si-dpo-3d.document+json",
+    });
+    expect(mtime).to.be.instanceof(Date);
+    expect(ctime).to.be.instanceof(Date);
+    expect(JSON.parse(data)).to.deep.equal(sampleDoc);
+  });
+
+  it("uses a merge algorithm when possible", async function(){
+    //Insert a small change that happened between checkout and commit
+    
+    let currentDoc = JSON.parse(sampleDocString);
+    currentDoc.models[0].annotations = [
+      {id: uid(), title:"Annotation"}
+    ];
+    await vfs.writeDoc(JSON.stringify(currentDoc), {scene: scene_id, user_id: user.uid, name: "scene.svx.json", mime: "application/si-dpo-3d.document+json"});
+
+
+    //Make our user reference the first doc generation
+    sampleDoc.asset.id = firstDocId;
+    sampleDoc.metas[0].collection.titles["FR"] = "Titre 1";
+    let r = await request(this.server).put(`/scenes/${titleSlug}/scene.svx.json`)
+    .set("Authorization", await bearer("bob"))
+    .set("Content-Type", "application/si-dpo-3d.document+json")
+    .send(sampleDoc)
+    .expect(204);
+
+    let {ctime, mtime, data:docString, id, ...doc} =  await vfs.getDoc(scene_id);
+    const data = JSON.parse(docString);
+
+    //This is some trivial reconciliation. See the merge module's tests for advanced cases.
+    expect(data.models).to.have.length(1);
+    expect(data.models[0], JSON.stringify(data.models[0])).to.have.property("annotations").to.have.length(1);
+    expect(data.metas).to.have.length(1);
+    expect(data.metas[0]?.collection?.titles["FR"], `From ${JSON.stringify(data.metas)}`).to.equal("Titre 1");
+  });
+
+  it("performs structured merge on the document", async function(){
+    //This is a slightly less trivial case where we check if proper deduplication is applied
+    //Insert a change that happened between checkout and commit
+        
+    let currentDoc = JSON.parse(sampleDocString);
+    let idx = currentDoc.nodes.push({
+      "id": "XFHQzCrGFKcc",
+      "name": "Model 1",
+      "model": 1,
+    }) -1;
+    currentDoc.scenes[0].nodes.push(idx);
+    currentDoc.models.push({
+      "units": "mm",
+      "derivatives": [
+        {
+          "usage": "Web3D",
+          "quality": "High",
+          "assets": [{
+              "uri": "models/model1.glb",
+              "type": "Model",
+            }
+          ]
+        }
+      ]
+    });
+
+    await vfs.writeDoc(JSON.stringify(currentDoc), {scene: scene_id, user_id: user.uid, name: "scene.svx.json", mime: "application/si-dpo-3d.document+json"});
+
+    //Make our user reference the first doc generation
+    sampleDoc.asset.id = firstDocId;
+    idx = sampleDoc.nodes.push({
+      "id": "xpxZWrFw0Twi",
+      "name": "Model 2",
+      "model": 1,
+    }) -1;
+    sampleDoc.scenes[0].nodes.push(idx);
+    sampleDoc.models.push({
+      "units": "mm",
+      "derivatives": [
+        {
+          "usage": "Web3D",
+          "quality": "High",
+          "assets": [{
+              "uri": "models/model2.glb",
+              "type": "Model",
+            }
+          ]
+        }
+      ]
+    });
+    let r = await request(this.server).put(`/scenes/${titleSlug}/scene.svx.json`)
+    .set("Authorization", await bearer("bob"))
+    .set("Content-Type", "application/si-dpo-3d.document+json")
+    .send(sampleDoc)
+    .expect(204);
+
+    let {ctime, mtime, data:docString, id, ...doc} =  await vfs.getDoc(scene_id);
+    const data = JSON.parse(docString);
+    expect(data.models).to.have.length(3);
+    expect(data.nodes).to.have.length(6);
+  });
+
+  it.skip("can't reference a foreign document to diff against", async function(){
+    expect.fail("Unimplemented");
+  });
+
+});

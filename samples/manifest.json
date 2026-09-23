@@ -1,0 +1,1060 @@
+{
+  "retrievedAt": "2026-09-14T23:14:08.602Z",
+  "sampleCount": 30,
+  "samples": [
+    {
+      "key": "khronos-AntiqueCamera",
+      "file": "antique-camera.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "ae89695479ad997f09ebea8060a5ad01312ad8fe7ffb92f73b4e895109feecd2",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/AntiqueCamera/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC0 1.0；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "古董相机 · 光学仪器",
+        "kind": "model",
+        "description": "旋转观察镜头、机身与调节部件的相对位置，适合开展光学仪器和机械结构的入门观察。",
+        "category": "物理工程",
+        "creator": "UX3D",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "AntiqueCamera",
+        "sourceSha256": "ae89695479ad997f09ebea8060a5ad01312ad8fe7ffb92f73b4e895109feecd2",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/AntiqueCamera/README.md",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "Antique Camera — UX3D · CC0 1.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "antique-camera.glb"
+      },
+      "notes": [
+        {
+          "id": "160e7af6-46c7-4db8-b4b6-f23ea60fb6b3",
+          "title": "镜头与机身",
+          "body": "找到镜头、镜筒和机身，比较它们在成像和支撑中的作用。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-Avocado",
+      "file": "avocado.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Avocado/glTF-Binary/Avocado.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "ccc9c3ce56423720b09399c2351537207cd5a65f859f9e6e2f30922762f3abd4",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Avocado/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC0 1.0；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "牛油果 · 果实剖面",
+        "kind": "model",
+        "description": "旋转观察外皮、果肉与种子的相对位置。模型来自绘制贴图的数字样例，不作为精确解剖或尺寸依据。",
+        "category": "自然科学",
+        "creator": "Microsoft",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "Avocado",
+        "sourceSha256": "ccc9c3ce56423720b09399c2351537207cd5a65f859f9e6e2f30922762f3abd4",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Avocado/README.md",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "Avocado — Microsoft · CC0 1.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "avocado.glb"
+      },
+      "notes": [
+        {
+          "id": "556fec7e-e661-4760-9d77-71c4907542f3",
+          "title": "从外到内",
+          "body": "找到外皮、果肉与中央种子。比较三者的形态与表面特征。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-BarramundiFish",
+      "file": "barramundi.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BarramundiFish/glTF-Binary/BarramundiFish.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "ecc3bafb6b00f2c8b810863c388e3768a7b7ea0d0335e8cb8c574c266e571f4a",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BarramundiFish/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC0 1.0；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "尖吻鲈 · 鱼体形态",
+        "kind": "model",
+        "description": "观察身体轮廓、各鳍位置与尾部形态；比较从侧面和正面看到的结构。此模型用于外形观察，不替代生物标本鉴定。",
+        "category": "自然科学",
+        "creator": "Microsoft",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "BarramundiFish",
+        "sourceSha256": "ecc3bafb6b00f2c8b810863c388e3768a7b7ea0d0335e8cb8c574c266e571f4a",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BarramundiFish/README.md",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "BarramundiFish — Microsoft · CC0 1.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "barramundi.glb"
+      },
+      "notes": [
+        {
+          "id": "19ec0aa0-c30f-4ac6-87cf-6f30d1e7f8d9",
+          "title": "观察运动结构",
+          "body": "找出胸鳍、背鳍和尾鳍。尝试从形态推测它们在游动中的作用。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-BoomBox",
+      "file": "boombox.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BoomBox/glTF-Binary/BoomBox.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "f8b918445ebdd006768232205a62f5182d2208ca57f84c6ccc084943c0bc8f15",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BoomBox/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC0 1.0；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "便携音箱 · 声学设备",
+        "kind": "model",
+        "description": "观察扬声器单元、旋钮、提手和外壳的布局，用于声学设备和产品结构的基础认识。",
+        "category": "物理工程",
+        "creator": "Public",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "BoomBox",
+        "sourceSha256": "f8b918445ebdd006768232205a62f5182d2208ca57f84c6ccc084943c0bc8f15",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/BoomBox/README.md",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "BoomBox — Public · CC0 1.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "boombox.glb"
+      },
+      "notes": [
+        {
+          "id": "4e27925f-82f0-4709-bb65-9a373f4432a9",
+          "title": "声音从哪里出来",
+          "body": "找出扬声器单元和控制旋钮，思考外壳为什么需要包住内部结构。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-CarConcept",
+      "file": "car-concept.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CarConcept/glTF-Binary/CarConcept.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "c272098089d78c5cd9fd9f24ff50ee8acf8d932c55f2d55fc10adb6c8998966b",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CarConcept/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC BY 4.0 或其明确列出的兼容组件；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "概念汽车 · 交通工程",
+        "kind": "model",
+        "description": "从不同角度观察车身、车轮、车窗和外形曲面，适合讨论交通工具的形态与空气阻力。",
+        "category": "物理工程",
+        "creator": "Darmstadt Graphics Group GmbH",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "CarConcept",
+        "sourceSha256": "c272098089d78c5cd9fd9f24ff50ee8acf8d932c55f2d55fc10adb6c8998966b",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CarConcept/README.md",
+        "license": "CC-BY-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "Car Concept — Darmstadt Graphics Group GmbH · CC BY 4.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "car-concept.glb"
+      },
+      "notes": [
+        {
+          "id": "086238da-86a7-4fbd-92c8-7809a428e8b4",
+          "title": "车轮与车身",
+          "body": "比较车轮、车身和驾驶舱的空间关系，记录它们如何共同支持移动。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-CesiumMan",
+      "file": "cesium-man.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CesiumMan/glTF-Binary/CesiumMan.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "b7001eaeea8254bd44773bcd247e78696d94169388fbb2a1800fc69434e777d9",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CesiumMan/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC BY 4.0 或其明确列出的兼容组件；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "数字人体 · 姿态观察",
+        "kind": "model",
+        "description": "用于观察数字人体的站立姿态、四肢比例和关节连接；不用于医学诊断或真实人体测量。",
+        "category": "人体与健康",
+        "creator": "Cesium",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "CesiumMan",
+        "sourceSha256": "b7001eaeea8254bd44773bcd247e78696d94169388fbb2a1800fc69434e777d9",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CesiumMan/README.md",
+        "license": "CC-BY-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "CesiumMan — Cesium · CC BY 4.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "cesium-man.glb"
+      },
+      "notes": [
+        {
+          "id": "3951ab35-a8e9-4309-9a80-e2398462100e",
+          "title": "关节连接",
+          "body": "观察肩、肘、髋、膝和踝的位置，描述四肢如何围绕关节活动。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-CesiumMilkTruck",
+      "file": "cesium-milk-truck.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "09371b34608116de5842d23abe260bf11acf3e1554daf334a647eb566eee5c49",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CesiumMilkTruck/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC BY 4.0 或其明确列出的兼容组件；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "奶罐车 · 运输结构",
+        "kind": "model",
+        "description": "观察驾驶室、车厢、车轮和底盘的布局，讨论运输工具如何承载和移动货物。",
+        "category": "物理工程",
+        "creator": "Cesium",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "CesiumMilkTruck",
+        "sourceSha256": "09371b34608116de5842d23abe260bf11acf3e1554daf334a647eb566eee5c49",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/CesiumMilkTruck/README.md",
+        "license": "CC-BY-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "CesiumMilkTruck — Cesium · CC BY 4.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "cesium-milk-truck.glb"
+      },
+      "notes": [
+        {
+          "id": "b2633885-5e01-4c4b-b63d-cc7aaba9b181",
+          "title": "承载与移动",
+          "body": "先找到车厢和底盘，再观察车轮如何支撑车辆并传递运动。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-ChronographWatch",
+      "file": "chronograph-watch.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/ChronographWatch/glTF-Binary/ChronographWatch.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "8e875fcd83efb433afed9ef1c18b2c2b2e075e2bf48371cadfd2a3cf529f1aef",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/ChronographWatch/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC BY 4.0 或其明确列出的兼容组件；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "计时码表 · 精密机械",
+        "kind": "model",
+        "description": "观察表盘、表冠、按键和表带结构，适合进行精密仪器和人机操作部件的空间观察。",
+        "category": "物理工程",
+        "creator": "graphiccompressor、Darmstadt Graphics Group GmbH",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "ChronographWatch",
+        "sourceSha256": "8e875fcd83efb433afed9ef1c18b2c2b2e075e2bf48371cadfd2a3cf529f1aef",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/ChronographWatch/README.md",
+        "license": "CC-BY-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "Chronograph Watch — graphiccompressor、Darmstadt Graphics Group GmbH · CC BY 4.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "chronograph-watch.glb"
+      },
+      "notes": [
+        {
+          "id": "dac12809-6fb3-4d2c-b1b1-0bf69eb17b89",
+          "title": "操作部件",
+          "body": "找到表冠和计时按键，比较它们与表盘、表壳之间的空间关系。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-Corset",
+      "file": "corset.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Corset/glTF-Binary/Corset.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "9582c0dc0dee813be77f60e6ddf7213987c7e11497bf3cc66fd7b18957ae0d26",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Corset/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC0 1.0；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "紧身胸衣 · 服装结构",
+        "kind": "model",
+        "description": "观察服装外形、骨条与系带的排列，讨论服装如何围绕人体形成支撑和约束。",
+        "category": "人体与健康",
+        "creator": "UX3D",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "Corset",
+        "sourceSha256": "9582c0dc0dee813be77f60e6ddf7213987c7e11497bf3cc66fd7b18957ae0d26",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Corset/README.md",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "Corset — UX3D · CC0 1.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "corset.glb"
+      },
+      "notes": [
+        {
+          "id": "a2b814a8-88ae-4015-9849-d15d79893cec",
+          "title": "支撑线条",
+          "body": "寻找纵向骨条和系带，比较它们对服装形状的影响。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-Fox",
+      "file": "fox.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Fox/glTF-Binary/Fox.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Fox/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC BY 4.0 或其明确列出的兼容组件；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "狐狸 · 动物形态",
+        "kind": "model",
+        "description": "观察头部、躯干、四肢和尾部的整体比例，用于动物形态与运动姿态的基础观察。",
+        "category": "自然科学",
+        "creator": "tomkranis、Asobo Studio、scurest",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "Fox",
+        "sourceSha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Fox/README.md",
+        "license": "CC-BY-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "Fox — tomkranis、Asobo Studio、scurest · CC BY 4.0 / CC0 components · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "fox.glb"
+      },
+      "notes": [
+        {
+          "id": "c30163ed-811f-4d66-847c-08e4db8abfd6",
+          "title": "形态与运动",
+          "body": "比较四肢和尾部的方向，思考它们如何配合奔跑和保持平衡。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-Lantern",
+      "file": "lantern.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Lantern/glTF-Binary/Lantern.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "a79458c4b02d695187a952f23a63b8bf278e7bc3d316a3c2a314f2d6974181f1",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Lantern/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC0 1.0；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "提灯 · 光源设备",
+        "kind": "model",
+        "description": "观察提手、外壳、玻璃罩和底座，适合讨论光源保护、携带和通风结构。",
+        "category": "生活与工程",
+        "creator": "Microsoft、Frank Galligan",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "Lantern",
+        "sourceSha256": "a79458c4b02d695187a952f23a63b8bf278e7bc3d316a3c2a314f2d6974181f1",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/Lantern/README.md",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "Lantern — Microsoft、Frank Galligan · CC0 1.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "lantern.glb"
+      },
+      "notes": [
+        {
+          "id": "f79ee0f3-3349-49c5-95d4-c24b956816ee",
+          "title": "保护光源",
+          "body": "找到提手、保护框和透明罩，分析它们如何兼顾携带与透光。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-SunglassesKhronos",
+      "file": "sunglasses-khronos.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/SunglassesKhronos/glTF-Binary/SunglassesKhronos.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "25d72dd0869c99f94a3c0d6dfe0707714eca056e531f6ff77e7545719c86ab8c",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/SunglassesKhronos/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC BY 4.0 或其明确列出的兼容组件；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "太阳镜 · 视觉防护",
+        "kind": "model",
+        "description": "观察镜片、镜框、鼻托和镜腿的连接方式，用于视觉防护用品的人机结构观察。",
+        "category": "人体与健康",
+        "creator": "Darmstadt Graphics Group GmbH、Khronos Group",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "SunglassesKhronos",
+        "sourceSha256": "25d72dd0869c99f94a3c0d6dfe0707714eca056e531f6ff77e7545719c86ab8c",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/SunglassesKhronos/README.md",
+        "license": "CC-BY-4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution": "SunglassesKhronos — Darmstadt Graphics Group GmbH、Khronos Group · CC BY 4.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "sunglasses-khronos.glb"
+      },
+      "notes": [
+        {
+          "id": "14bb6a3d-ec7d-4915-8191-93b51d14b67d",
+          "title": "贴合面部",
+          "body": "从正面和侧面观察镜片、鼻托、镜腿的位置，思考它们如何贴合面部。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-ToyCar",
+      "file": "toy-car.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/ToyCar/glTF-Binary/ToyCar.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "01a60862de55cd4b9f3acfab0b0def86451800f9c42467fcd61052c16cb9838c",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/ToyCar/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC0 1.0；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "玩具车 · 轮式结构",
+        "kind": "model",
+        "description": "观察轮子、车轴和车身的关系，用较低复杂度模型理解轮式运动的基本结构。",
+        "category": "物理工程",
+        "creator": "Public",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "ToyCar",
+        "sourceSha256": "01a60862de55cd4b9f3acfab0b0def86451800f9c42467fcd61052c16cb9838c",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/ToyCar/README.md",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "ToyCar — Public · CC0 1.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "toy-car.glb"
+      },
+      "notes": [
+        {
+          "id": "95e47eb3-71d1-4754-94a2-f4fadf94339e",
+          "title": "车轴与轮子",
+          "body": "找到车轴和四个轮子，描述它们如何配合让车身前进。"
+        }
+      ]
+    },
+    {
+      "key": "khronos-WaterBottle",
+      "file": "water-bottle.glb",
+      "downloadUrl": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/90d7ede14c7e280af263824604b427a1ca02cb66/Models/WaterBottle/glTF-Binary/WaterBottle.glb",
+      "sourceRevision": "90d7ede14c7e280af263824604b427a1ca02cb66",
+      "originalSha256": "b337e526fd6a162013c2984aeec163f5fbb4f717252724dfc3f3458bd51df94b",
+      "evidenceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/WaterBottle/README.md",
+      "reviewNote": "已核对该模型 README 的逐件 Legal 声明：CC0 1.0；保留作者、原始资源页与许可链接。",
+      "metadata": {
+        "title": "水瓶 · 容器结构",
+        "kind": "model",
+        "description": "观察瓶身、瓶口、瓶盖和底部支撑结构，适合开展容器设计和材料形态的基础讨论。",
+        "category": "生活与工程",
+        "creator": "Public",
+        "sourceName": "Khronos glTF Sample Assets",
+        "sourceAssetId": "WaterBottle",
+        "sourceSha256": "b337e526fd6a162013c2984aeec163f5fbb4f717252724dfc3f3458bd51df94b",
+        "sourceUrl": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/90d7ede14c7e280af263824604b427a1ca02cb66/Models/WaterBottle/README.md",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "WaterBottle — Public · CC0 1.0 · Khronos glTF Sample Assets",
+        "modifications": "模型文件未修改；教学名称与观察提示由本地观察台补充。",
+        "rightsConfirmed": true,
+        "originalFileName": "water-bottle.glb"
+      },
+      "notes": [
+        {
+          "id": "2fc0e205-6e1b-4f34-a8a9-ee337cb702ea",
+          "title": "容纳与密封",
+          "body": "比较瓶身和瓶盖的形状，思考它们如何共同完成容纳和密封。"
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-aviation_museum",
+      "file": "aviation-museum.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/aviation_museum.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "13b7364fc76e3e77acdf12305c701a4caf87fabdd8239cb413052b132ae8da9a",
+      "apiMd5": "4c56fc79f44b908a0b542507ae89b6ab",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "航空博物馆 · 飞行器环境",
+        "kind": "panorama",
+        "description": "在固定观察点环顾展厅，观察飞机、展柜、地面和顶部空间的关系。",
+        "category": "历史与工程",
+        "creator": "Sergej Majboroda",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "aviation_museum",
+        "sourceSha256": "13b7364fc76e3e77acdf12305c701a4caf87fabdd8239cb413052b132ae8da9a",
+        "sourceUrl": "https://polyhaven.com/a/aviation_museum",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "航空博物馆 · 飞行器环境 — Sergej Majboroda · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "aviation-museum.jpg"
+      },
+      "notes": [
+        {
+          "id": "a4c00592-9139-43e4-a5b8-ce78c1237d4c",
+          "title": "展陈空间",
+          "body": "记录大型飞行器与展厅尺度之间的关系，比较近景与远景的视觉变化。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-aircraft_workshop_01",
+      "file": "aircraft-workshop-01.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/aircraft_workshop_01.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "b224ff57ff9d93dcb0c59d4dc01539477848b30715eca6a5930067f3c63781f2",
+      "apiMd5": "f56db9ecc8feb34f82ce077a2739ca3c",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "飞机维修车间 · 工程现场",
+        "kind": "panorama",
+        "description": "观察维修车间中的设备、机体和工作空间，理解大型工程维护的现场环境。",
+        "category": "历史与工程",
+        "creator": "Oliksiy Yakovlyev",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "aircraft_workshop_01",
+        "sourceSha256": "b224ff57ff9d93dcb0c59d4dc01539477848b30715eca6a5930067f3c63781f2",
+        "sourceUrl": "https://polyhaven.com/a/aircraft_workshop_01",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "飞机维修车间 · 工程现场 — Oliksiy Yakovlyev · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "aircraft-workshop-01.jpg"
+      },
+      "notes": [
+        {
+          "id": "e52d8974-4ba7-4c6d-99c9-23351068231b",
+          "title": "维护现场",
+          "body": "寻找机体、工具和工作区域，思考维护人员如何围绕目标组织空间。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-abandoned_bakery",
+      "file": "abandoned-bakery.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/abandoned_bakery.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "f382d368e41d85c3be54de846da7ebd58ac33f2d8cd5b815fc1a9df1701b9ec1",
+      "apiMd5": "700b8d3b60ae0d3eeeddb17577b7457a",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "废弃面包房 · 空间遗迹",
+        "kind": "panorama",
+        "description": "环顾废弃室内空间，观察墙面、设备、门窗和光线留下的环境线索。",
+        "category": "社会与环境",
+        "creator": "Sergej Majboroda",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "abandoned_bakery",
+        "sourceSha256": "f382d368e41d85c3be54de846da7ebd58ac33f2d8cd5b815fc1a9df1701b9ec1",
+        "sourceUrl": "https://polyhaven.com/a/abandoned_bakery",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "废弃面包房 · 空间遗迹 — Sergej Majboroda · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "abandoned-bakery.jpg"
+      },
+      "notes": [
+        {
+          "id": "77d4887b-9cac-4b45-a858-06c8c148b54f",
+          "title": "环境线索",
+          "body": "找出仍能说明房间用途的设备或布局，区分观察到的事实与推测。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-autumn_forest_01",
+      "file": "autumn-forest-01.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/autumn_forest_01.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "0dbc6a2d54c30705cd31ff067ad170e471777f8fec128fba2cffec7eed312fe3",
+      "apiMd5": "950ec8ce8dea28794ed0f3f814ce47dd",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "秋季森林 · 植被观察",
+        "kind": "panorama",
+        "description": "观察不同方向的林冠、树干、地表和光线，进行季节性生态环境记录。",
+        "category": "生态环境",
+        "creator": "Andreas Mischok",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "autumn_forest_01",
+        "sourceSha256": "0dbc6a2d54c30705cd31ff067ad170e471777f8fec128fba2cffec7eed312fe3",
+        "sourceUrl": "https://polyhaven.com/a/autumn_forest_01",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "秋季森林 · 植被观察 — Andreas Mischok · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "autumn-forest-01.jpg"
+      },
+      "notes": [
+        {
+          "id": "138e9440-c9b4-48da-aae7-33c92fbcc3d8",
+          "title": "林冠与地表",
+          "body": "分别描述树冠层、树干层和地表层的颜色、密度与明暗。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-bamboo_tunnel",
+      "file": "bamboo-tunnel.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/bamboo_tunnel.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "5d0c4822eabfa9dc333e0189e5c3065d33544f6df81967ea5540efa732129c18",
+      "apiMd5": "b1d2eaf8529bfcb172c94f8f140a0236",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "竹林通道 · 植物空间",
+        "kind": "panorama",
+        "description": "环顾竹林通道，观察茎秆密度、叶片遮挡和通道空间的方向性。",
+        "category": "生态环境",
+        "creator": "Dimitrios Savva、Jarod Guest",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "bamboo_tunnel",
+        "sourceSha256": "5d0c4822eabfa9dc333e0189e5c3065d33544f6df81967ea5540efa732129c18",
+        "sourceUrl": "https://polyhaven.com/a/bamboo_tunnel",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "竹林通道 · 植物空间 — Dimitrios Savva, Jarod Guest · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "bamboo-tunnel.jpg"
+      },
+      "notes": [
+        {
+          "id": "165c3375-a6ba-46c5-954d-4b365f59a3f9",
+          "title": "密度与方向",
+          "body": "比较通道两侧竹秆的方向和密度，描述它们如何塑造视线。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-beach_cloudy_bridge",
+      "file": "beach-cloudy-bridge.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/beach_cloudy_bridge.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "c2a1d781815b2e2d6e0e82714db8b6fab3f55eecbaee0cced99dd13f36aeb0f1",
+      "apiMd5": "7c8203a0bb982566c1a7a7c514af7964",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "海滩云桥 · 海岸环境",
+        "kind": "panorama",
+        "description": "观察海岸、天空、云层和桥体之间的空间关系，进行环境与天气观察。",
+        "category": "地理环境",
+        "creator": "Dimitrios Savva、Jarod Guest",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "beach_cloudy_bridge",
+        "sourceSha256": "c2a1d781815b2e2d6e0e82714db8b6fab3f55eecbaee0cced99dd13f36aeb0f1",
+        "sourceUrl": "https://polyhaven.com/a/beach_cloudy_bridge",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "海滩云桥 · 海岸环境 — Dimitrios Savva, Jarod Guest · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "beach-cloudy-bridge.jpg"
+      },
+      "notes": [
+        {
+          "id": "2c1b8a5b-e513-4f3a-be83-4414b3690b53",
+          "title": "海天交界",
+          "body": "找到海平面、沙地和桥体，描述不同方向上的空间层次。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-bank_vault",
+      "file": "bank-vault.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/bank_vault.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "22cafc2bd4dfd0cdb9f419f67dee7b6f3d99423d3dec196aee9f5365038e1804",
+      "apiMd5": "066d6517c49b60f76f97e3b9d6cc6812",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "银行金库 · 安全空间",
+        "kind": "panorama",
+        "description": "观察金库门、墙体、地面和内部空间，理解高安全场所的环境特征。",
+        "category": "社会与工程",
+        "creator": "Dimitrios Savva、Jarod Guest",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "bank_vault",
+        "sourceSha256": "22cafc2bd4dfd0cdb9f419f67dee7b6f3d99423d3dec196aee9f5365038e1804",
+        "sourceUrl": "https://polyhaven.com/a/bank_vault",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "银行金库 · 安全空间 — Dimitrios Savva, Jarod Guest · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "bank-vault.jpg"
+      },
+      "notes": [
+        {
+          "id": "1163d139-7956-44d4-8f39-c384b6b62fed",
+          "title": "防护结构",
+          "body": "观察厚重门体、门框和周围墙体，记录哪些结构表现出防护目的。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-bathroom",
+      "file": "bathroom.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/bathroom.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "19d1718f7cebbbb80aaa0fdf9a52ae00966452bf26cb9711b2dfcc6f43a2492b",
+      "apiMd5": "5d23982128c562fb086f402cd8be54bf",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "浴室 · 室内设施",
+        "kind": "panorama",
+        "description": "环顾浴室中的洁具、墙面、地面与照明，观察生活空间的功能分区。",
+        "category": "生活与工程",
+        "creator": "Greg Zaal",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "bathroom",
+        "sourceSha256": "19d1718f7cebbbb80aaa0fdf9a52ae00966452bf26cb9711b2dfcc6f43a2492b",
+        "sourceUrl": "https://polyhaven.com/a/bathroom",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "浴室 · 室内设施 — Greg Zaal · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "bathroom.jpg"
+      },
+      "notes": [
+        {
+          "id": "763eff68-b586-4a24-95f2-c1be5b3c86d5",
+          "title": "功能分区",
+          "body": "指出用水、排水、收纳和照明相关的设施，说明它们如何分布。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-aerodynamics_workshop",
+      "file": "aerodynamics-workshop.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/aerodynamics_workshop.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "13d7cfdeacfcd9bfd9221e73f753bdf831429f374d118126507b925c0e7410a6",
+      "apiMd5": "ebcc5d51e09d0aac40decf9c5e8c2485",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "空气动力学车间 · 实验环境",
+        "kind": "panorama",
+        "description": "观察实验车间内的设备、工作台和测试空间，为工程实验场景建立空间感。",
+        "category": "物理工程",
+        "creator": "Oliksiy Yakovlyev",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "aerodynamics_workshop",
+        "sourceSha256": "13d7cfdeacfcd9bfd9221e73f753bdf831429f374d118126507b925c0e7410a6",
+        "sourceUrl": "https://polyhaven.com/a/aerodynamics_workshop",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "空气动力学车间 · 实验环境 — Oliksiy Yakovlyev · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "aerodynamics-workshop.jpg"
+      },
+      "notes": [
+        {
+          "id": "0f5b79bc-cbfc-46cd-98bc-d7307cd39b85",
+          "title": "实验空间",
+          "body": "区分测试区域、操作区域和通行区域，描述它们之间的关系。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-alps_field",
+      "file": "alps-field.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/alps_field.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "bb653d6abf959bd0248853f59a146c9719c039307f8379f7a41ae428ac33b80c",
+      "apiMd5": "6693084c7fd3831ba3c183314fbb6ade",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "阿尔卑斯山地草场 · 地形观察",
+        "kind": "panorama",
+        "description": "观察山地草场、山体、天空和地表起伏，进行自然地理环境的方向性记录。",
+        "category": "地理环境",
+        "creator": "Andreas Mischok",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "alps_field",
+        "sourceSha256": "bb653d6abf959bd0248853f59a146c9719c039307f8379f7a41ae428ac33b80c",
+        "sourceUrl": "https://polyhaven.com/a/alps_field",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "阿尔卑斯山地草场 · 地形观察 — Andreas Mischok · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "alps-field.jpg"
+      },
+      "notes": [
+        {
+          "id": "c63214ed-2c2b-4b46-8f2c-2b233baa82d0",
+          "title": "远近地形",
+          "body": "比较脚下草场、中景坡面和远处山体的轮廓与色调。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-forest_slope",
+      "file": "forest-slope.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/forest_slope.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "d6ed6cbd2458979198403cd63f6774308eb49571b8f637da47339cad7339589a",
+      "apiMd5": "e6fb0022bb9f216edc7b2dfb58f19f15",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "林间坡地 · 环境观察",
+        "kind": "panorama",
+        "description": "转向四周、抬头与低头，观察树冠、林下地面、坡度和光线的关系。这个球形全景从单一拍摄位置环顾现场，不支持在林间自由走动。",
+        "category": "生态环境",
+        "creator": "Andreas Mischok",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "forest_slope",
+        "sourceSha256": "d6ed6cbd2458979198403cd63f6774308eb49571b8f637da47339cad7339589a",
+        "sourceUrl": "https://polyhaven.com/a/forest_slope",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "林间坡地 · 环境观察 — Andreas Mischok · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 4096×2048 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "forest-slope.jpg"
+      },
+      "notes": [
+        {
+          "id": "12a45fa4-f0d9-4f5d-ab06-a3e3e909a0a7",
+          "title": "林下层次",
+          "body": "观察近处地表、树干和远处树冠，比较不同距离上的遮挡与光照。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-old_hall",
+      "file": "old-hall.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/old_hall.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "395a5b1c71259047fae114b94eb181b5b454e607c3b089e0c4620198993b7e6e",
+      "apiMd5": "b50fc2c9a24f0f99e684fb6128fbb6aa",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "旧大厅 · 建筑空间",
+        "kind": "panorama",
+        "description": "观察旧建筑内部的柱、墙、地面、门窗和顶部结构，建立建筑空间的整体感知。",
+        "category": "历史与建筑",
+        "creator": "Sergej Majboroda",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "old_hall",
+        "sourceSha256": "395a5b1c71259047fae114b94eb181b5b454e607c3b089e0c4620198993b7e6e",
+        "sourceUrl": "https://polyhaven.com/a/old_hall",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "旧大厅 · 建筑空间 — Sergej Majboroda · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "old-hall.jpg"
+      },
+      "notes": [
+        {
+          "id": "940e9880-cb0f-4df2-a106-b09dcac85e5e",
+          "title": "建筑骨架",
+          "body": "寻找承重或分隔空间的主要构件，描述它们如何组织大厅。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-kloofendal_48d_partly_cloudy_puresky",
+      "file": "kloofendal-partly-cloudy.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/kloofendal_48d_partly_cloudy_puresky.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "2bdd7abe32f1d2f7a626e0a6e45bb808313f29bd41d758eacbdba91560e93f04",
+      "apiMd5": "3f2b19fa9c14943b34e5d4f480ba13ba",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "山谷草地 · 天空与地表",
+        "kind": "panorama",
+        "description": "观察开阔山谷中的地表、植被、云层和远景，用于自然环境的多方向观察。",
+        "category": "地理环境",
+        "creator": "Greg Zaal、Jarod Guest",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "kloofendal_48d_partly_cloudy_puresky",
+        "sourceSha256": "2bdd7abe32f1d2f7a626e0a6e45bb808313f29bd41d758eacbdba91560e93f04",
+        "sourceUrl": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "山谷草地 · 天空与地表 — Greg Zaal, Jarod Guest · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "kloofendal-partly-cloudy.jpg"
+      },
+      "notes": [
+        {
+          "id": "e2035ef0-fd46-47d3-aecd-500fc7d51f0e",
+          "title": "开阔视野",
+          "body": "分别观察地面、地平线和天空，记录开阔环境中的主要参照物。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-moonlit_golf",
+      "file": "moonlit-golf.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/moonlit_golf.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "11ca27720c85d6983955da711bdfb20f51100166b7ae341819b7b36c1b639bb1",
+      "apiMd5": "ef08349a60bc1772927aaa6aa11ff93c",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "月光球场 · 夜间环境",
+        "kind": "panorama",
+        "description": "观察月光下的草地、树木、建筑和天空，体验低照度环境中的空间辨识。",
+        "category": "地理环境",
+        "creator": "Greg Zaal",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "moonlit_golf",
+        "sourceSha256": "11ca27720c85d6983955da711bdfb20f51100166b7ae341819b7b36c1b639bb1",
+        "sourceUrl": "https://polyhaven.com/a/moonlit_golf",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "月光球场 · 夜间环境 — Greg Zaal · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "moonlit-golf.jpg"
+      },
+      "notes": [
+        {
+          "id": "32482cbc-74b8-44a0-92dd-9474c426a53c",
+          "title": "夜间光线",
+          "body": "找出月光方向和最亮区域，比较夜间环境与白天观察的差异。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-small_hangar_01",
+      "file": "small-hangar-01.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/small_hangar_01.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "d578de58f476f386460aafa0312c30832b1e9c5ef32d4a5b5b45747bab6cb3b3",
+      "apiMd5": "daf5518a0d0b213eda7d3de9e1fc58aa",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "小型机库 · 航空空间",
+        "kind": "panorama",
+        "description": "环顾小型机库，观察机体、地面、墙体和工作区域的组合。",
+        "category": "历史与工程",
+        "creator": "Sergej Majboroda",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "small_hangar_01",
+        "sourceSha256": "d578de58f476f386460aafa0312c30832b1e9c5ef32d4a5b5b45747bab6cb3b3",
+        "sourceUrl": "https://polyhaven.com/a/small_hangar_01",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "小型机库 · 航空空间 — Sergej Majboroda · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "small-hangar-01.jpg"
+      },
+      "notes": [
+        {
+          "id": "bfcc93a9-37ab-4119-9404-9891a0964929",
+          "title": "机库尺度",
+          "body": "以机体为参照，估计机库的宽度、净高和通行空间。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    },
+    {
+      "key": "polyhaven-urban_courtyard",
+      "file": "urban-courtyard.jpg",
+      "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/urban_courtyard.jpg",
+      "evidenceUrl": "https://polyhaven.com/license",
+      "originalSha256": "7c61f154c048e883c6b86137f7f9aa6b04d3b453d436d03468b5a5a24842a60f",
+      "apiMd5": "2c4ad5020088cbdc781b31806ed471d4",
+      "reviewNote": "已核对 Poly Haven 资产许可：CC0，可保存及再分发；按 API 条款保留 Poly Haven 来源名称。",
+      "metadata": {
+        "title": "城市庭院 · 建成环境",
+        "kind": "panorama",
+        "description": "观察城市庭院中的建筑立面、地面、植物和通道，理解日常建成环境。",
+        "category": "社会与环境",
+        "creator": "Greg Zaal、Rico Cilliers",
+        "sourceName": "Poly Haven",
+        "sourceAssetId": "urban_courtyard",
+        "sourceSha256": "7c61f154c048e883c6b86137f7f9aa6b04d3b453d436d03468b5a5a24842a60f",
+        "sourceUrl": "https://polyhaven.com/a/urban_courtyard",
+        "license": "CC0-1.0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution": "城市庭院 · 建成环境 — Greg Zaal, Rico Cilliers · Poly Haven · CC0 1.0",
+        "modifications": "原始 8192×4096 全景等比缩小为 2048×1024 JPG，未合成或添加场景。",
+        "rightsConfirmed": true,
+        "originalFileName": "urban-courtyard.jpg"
+      },
+      "notes": [
+        {
+          "id": "d011b559-716f-450d-a1c0-c9882f9f2f20",
+          "title": "人行路径",
+          "body": "寻找主要通行方向和停留区域，描述建筑、植物与路径的关系。",
+          "position": {
+            "yaw": 0,
+            "pitch": -0.15
+          }
+        }
+      ]
+    }
+  ]
+}

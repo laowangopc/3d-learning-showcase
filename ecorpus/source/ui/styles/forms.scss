@@ -1,0 +1,796 @@
+@use "sass:selector";
+
+// Register the underline's active-color variable as a <color> so transitions
+// can interpolate it. Without @property the variable is an untyped string and
+// the gradient using it flips instantly between gold / red / secondary.
+@property --form-rule-active {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+
+.form-control{
+  --label-width: 200px;
+  container-type: inline-size;
+  &, form, .form-group{
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    &.form-row{
+      flex-direction: row;
+      align-items: baseline;
+      --label-width: auto;
+    }
+    &.form-column{
+      flex-direction: column;
+    }
+    &.form-right{
+      justify-content: end;
+      .form-item{
+        justify-content: end;
+
+      }
+    }
+  }
+
+
+  .form-item{
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    padding-inline: 0;
+    padding-top: 0;
+    margin-inline: 0;
+
+    > label{
+      flex: 0 0 auto;
+      min-width: var(--label-width);
+      padding-right: 1.5rem;
+      white-space: wrap;
+      word-break: break-all;
+    }
+    //input is generally just nested inside the form-item
+    input {
+      flex: 1 1 auto;
+    }
+    
+    //But in case we want to bundle a bunch of thing in this space, we can further nest it in a .form-input
+    > .form-input {
+      flex: 1 1 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    &:is(fieldset){
+      align-items: center;
+    }
+
+    legend{
+      float: left;
+    }
+    
+  }
+
+
+
+ 
+
+
+
+  // Collapse the [label · input] grid to a single column when the form's own
+  // width drops below the threshold. Container query (not viewport) so a form
+  // in a sidebar / dialog / table cell collapses based on its actual width.
+  // Every row in the same form collapses simultaneously.
+  @container (max-width: 480px) {
+
+    .form-item {
+      flex-direction: column;
+
+      >label, >legend {
+        text-align: start;
+        white-space: normal;
+        padding-top: 0;
+        //The label-column width only makes sense beside an input; stacked
+        //above it, it would push past a narrower form
+        min-width: 0;
+      }
+      // Single-toggle rows keep their side-by-side [label · checkbox] layout.
+      // Composite controls that merely contain a checkbox (e.g. the token
+      // scope matrix and its "all" toggle) still stack like any other row.
+      &:has(input[type="checkbox"]):not(:has(.scope-slider)){
+        flex-direction: row;
+        justify-content: space-between;
+        > label {
+          padding-top: 6px;
+        }
+        > .form-input {
+          justify-content: end;
+        }
+      }
+      
+      &:is(fieldset){
+        align-items: baseline;
+      }
+    }
+
+    .form-item + small {
+      padding-left: 0;
+    }
+
+    .form-group:not(.inline):not(.column):has(> .btn, > button, > input[type="submit"], > input[type="reset"], > input[type="button"]){
+      flex-direction: column-reverse;
+      > * {
+        flex: 1 1 100%;
+      }
+    }
+  }
+
+
+  .divider{
+    width: 1px;
+    background-color: var(--color-text);
+  }
+
+  .form-section{
+    margin: .25rem 0 .1rem 0;
+  }
+
+  input[type=file]{
+    &.dropzone{
+      max-width: 100%;
+      flex: 1 1 auto;
+      background: var(--color-highlight2);
+    }
+    &::file-selector-button {
+      margin-right: 8px;
+      border: none;
+      background: var(--color-secondary);
+      padding: 8px 12px;
+      color: #fff;
+      cursor: pointer;
+    }
+  }
+
+
+  &.form-sidebar{
+    //Used in .grid-toolbar
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    gap: 8px;
+    padding-left: .5rem;
+  }
+
+
+  &:disabled *, & *:disabled, & *:disabled * {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+}
+
+
+
+.form-group{
+  padding: 5px 0;
+  &.inline{
+    display:flex;
+    justify-content: stretch;
+    flex-direction: row;
+    .form-item > select{
+      width: auto;
+    }
+  }
+  &.column{
+    display:flex;
+    align-items: stretch;
+    gap: 5px;
+
+  }
+  .row{
+    display:flex;
+    align-items: stretch;
+    flex-direction: row;
+    gap: 5px;
+
+  }
+
+  // Button row — a .form-group that contains only button-like children
+  // becomes a right-aligned action row. Excludes the existing layout
+  // modifiers (.inline, .column) so mixed input + button rows opt out.
+  // On container collapse the row reverses to a column-reverse stack with
+  // every child stretched to full width.
+  &:not(.inline):not(.column):has(> .btn, > button, > input[type="submit"], > input[type="reset"], > input[type="button"]){
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+// Base building block for a single labelled input. Defined at the top level
+// (not nested under .form-control) so it can be reused anywhere — e.g. the
+// navbar search input, which is not inside a .form-control.
+.form-item {
+  // Reserved space for an optional help / error message below the input. The
+  // .btn-addon rule below uses this same variable to compute its bottom offset,
+  // so addon buttons (edit / password-toggle / …) stretch the input row only
+  // and never reach down into the help-text gap.
+  --form-item-help-pad: 0px;
+  position: relative;
+  box-sizing: border-box;
+  border: none;
+
+  // Reserve one line of help-text height below the input only when no
+  // trailing <small> sibling will fill that slot. With a <small> sibling, the
+  // form-item collapses to the input row and the small provides its own height
+  // (one line or more) — and .btn-addon stretches the full row since the var
+  // resolves to 0.
+  &:has(> label):not(:has(+ small)), &:is(fieldset) {
+    --form-item-help-pad: 1.25rem;
+    padding-bottom: var(--form-item-help-pad);
+  }
+
+  > label, >legend {
+    text-align: end;
+    padding: 3px 0;
+  }
+
+  // Required-field indicator — asterisk after the label text. Two cases:
+  //   <div class="form-item"><input required><label>…</label></div>  (sibling label)
+  //   <label class="form-item">…<input required></label>              (wrapping label)
+  // Skip checkbox / radio: their layout is bracket-glyph driven, not underline.
+  // Color is state-dependent via --form-required-color: gold initially, red
+  // once :user-invalid, green once :user-valid (which on a required field
+  // implies "filled and passes constraints").
+  --form-required-color: var(--color-primary);
+  &:has(> input:required:user-invalid) {
+    --form-required-color: var(--color-error);
+  }
+  &:has(> input:required:user-valid) {
+    --form-required-color: var(--color-success);
+  }
+  &:has(> input:required:not([type="checkbox"]):not([type="radio"])) > label::after,
+  &:is(label):has(> input:required:not([type="checkbox"]):not([type="radio"]))::after {
+    content: " *";
+    color: var(--form-required-color);
+    transition: color .2s linear;
+  }
+
+  // Help / error message slot — a <small> placed as the form-item's next
+  // sibling (not a child, to keep the form-item's flex row layout untouched).
+  // Offset by --label-width so it aligns under the input column. Turns red and
+  // full-opacity when the row's input is invalid after interaction.
+  + small {
+    display: block;
+    padding-left: var(--label-width, 0);
+    font-size: .8em;
+    line-height: 1.25;
+    opacity: 0.7;
+    transition: color .2s linear, opacity .2s linear;
+  }
+  &:has(> input:user-invalid) + small {
+    color: var(--color-error);
+    opacity: 1;
+  }
+
+  &.inline{
+    display:flex;
+    flex-direction: row;
+    gap: .5rem;
+    padding: 2px 0;
+    >input{
+      flex-grow: 0;
+      width: auto;
+    }
+  }
+
+
+  // Slide the gold focus rule in when the row gains focus — using
+  // :focus-within (not :focus) so adjacent focusable elements like a password
+  // reveal toggle keep the rule active.
+  &:focus-within input:not(.btn){
+    background-size: 100% 1px;
+  }
+
+  label {
+    font-family: var(--font-heading);
+    opacity: 0.7;
+    
+    &:has(> input[type="radio"]){
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  legend {
+    font-family: var(--font-heading);
+    opacity: 0.7;
+    min-width: var(--label-width);
+    padding-right: 1.5rem;
+  }
+
+
+  // Underline-only input — no fill, no box. The baseline rule is a static
+  // 1px border-bottom; on :focus-within of the row, a gold gradient scales in
+  // from the left over 250ms and replaces it. Invalid inputs get the same
+  // treatment in red.
+  input{
+    box-sizing: border-box;
+    padding: 3px 0;
+    display: block;
+    width: 100%;
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.5;
+
+    &:not(.btn){
+      --form-rule-base: light-dark(#cccccc, #2a2a2a);
+      --form-rule-active: var(--color-primary);
+      &:has(+ .btn-main){
+        --form-rule-active: var(--color-secondary);
+      }
+
+      color: var(--color-text);
+      background-color: transparent;
+      border: none;
+      border-radius: 0;
+
+      // Two-layer gradient: a full-width neutral baseline rule with the
+      // active rule layered on top, animating 0 → 100% on focus. Both layers
+      // share the same 1px row so the active rule fully covers the baseline
+      // when extended — no border-bottom underneath, no double-line on focus.
+      background-image:
+        linear-gradient(var(--form-rule-active), var(--form-rule-active)),
+        linear-gradient(var(--form-rule-base), var(--form-rule-base));
+      background-size: 0 1px, 100% 1px;
+      background-position: 0 100%, 0 100%;
+      background-repeat: no-repeat;
+      transition: background-size .2s linear, --form-rule-active .2s linear;
+    }
+
+    &:not(.btn):focus{
+      outline: none;
+    }
+    &:not(.btn):hover:not(:disabled){
+      --form-rule-base: var(--color-highlight2);
+    }
+    // :user-invalid fires only after the user has interacted (blur or submit)
+    // — avoids flashing red while they're still typing. Underline is fully
+    // extended so the recolor reads as a state change, not a fill-in.
+    &:not(.btn):user-invalid{
+      --form-rule-active: var(--color-error);
+      background-size: 100% 1px, 100% 1px;
+    }
+    // Disabled inputs are visibly inert: the rule disappears entirely so they
+    // can't be mistaken for an editable field.
+    &:not(.btn):disabled{
+      background-image: none;
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    &:has( + .btn-addon:not([hidden])){
+      //To have proper outline alignment
+      padding-right: 2.5rem;
+    }
+
+    + .btn-addon{
+      position: absolute;
+      top: 1px;
+      // Stretch the input row only — exclude the reserved help-text padding so
+      // the addon button doesn't bleed into the empty gap below.
+      bottom: calc(var(--form-item-help-pad, 0px) + 1px);
+      right: 0;
+      border-radius: 0 3px 0 0;
+      width: 2.5rem;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .ui-icon{
+        margin: 0;
+        height: auto;
+      }
+    }
+
+    &[hidden]{
+      display: none;
+      +label{
+        cursor: pointer;
+        padding: 5px 2px;
+        margin: 0;
+        display: inline-block;
+      }
+      &[type="radio"]:checked + label{
+        color: var(--color-primary);
+      }
+    }
+
+    &[readonly]{
+      cursor: default;
+      caret-color: transparent;
+      background-image: none;
+      &:hover, &:focus {
+        outline: none;
+        border-color: inherit;
+      }
+      &[type="checkbox"], &[type="color"]{
+        pointer-events: none;
+      }
+    }
+
+    // Custom checkbox / radio — shared box (1.2em, gold on selected, dotted
+    // focus ring) with a ::before overlay carrying the state glyph: ✔ / – for
+    // checkboxes, a filled inner disc for radios.
+    //
+    // Explicit width + justify-self: start keep the control from being
+    // stretched by the parent grid cell — without these the input would fill
+    // the input column and the centred ::before overlay would land at the
+    // cell midpoint, far away from the box.
+    &[type="checkbox"],
+    &[type="radio"]{
+      --size: 1.2em;
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+      display: inline-block;
+      justify-self: start;
+      box-sizing: border-box;
+      width: var(--size);
+      height: var(--size);
+      flex: 0 0 auto;
+      padding: 0;
+      margin: 0;
+
+      font-family: monospace;
+      font-size: var(--size);
+      line-height: var(--size);
+      text-align: center;
+      vertical-align: baseline;
+      color: #ccc;
+      cursor: pointer;
+
+      border: 1px solid currentColor;
+      border-radius: 2px;
+      box-shadow: 0 0 0 1px rgba(20, 20, 20, 0.3);
+      background: rgba(0, 0, 0, 0.5);
+      text-shadow: 1px 1px 2px black;
+
+      &::before{
+        content: "";
+        position: absolute;
+        inset: 0;
+        top: -1px;
+        place-items: center;
+      }
+      // Stable baseline strut: empty inline content with monospace metrics so
+      // the inline-block's baseline doesn't shift when ::before swaps glyphs
+      // (which fall back to a different font and would otherwise move it ~1px).
+      &::after{
+        content: "";
+      }
+      &:checked{
+        color: var(--color-primary);
+      }
+      &:focus-visible{
+        outline: 1px dotted var(--color-primary);
+        outline-offset: 2px;
+      }
+      &:disabled{
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    &[type="checkbox"]{
+      &:checked::before{ content: "✔"; }
+      &:indeterminate{
+        color: var(--color-primary-light);
+        &::before{
+          font-weight: bold;
+          content: "–";
+        }
+      }
+    }
+
+    &[type="radio"]{
+      border-radius: 50%;
+      &:checked{
+        background: rgba(20, 20, 20, 0.8);
+        &::before{
+        // Filled inner disc — overrides the inherited inset/top so the dot
+        // sits centred rather than covering the whole box.
+        inset: 2px;
+        background: currentColor;
+        border-radius: 50%;
+      }
+      }
+    }
+
+    &[type="color"]{
+      border-radius: 4px;
+      background-image: none;
+      &::-moz-color-swatch,
+      &::-webkit-color-swatch {
+        border: none;
+      }
+    }
+
+    &[type="range"]{
+      align-self: center;
+      accent-color: var(--color-primary);
+    }
+  }
+
+  // When the form-item itself is a <label> wrapping an input (e.g. addon-style
+  // rows in admin/groups.hbs, search filters), the label text is direct child
+  // text — apply the heading font there too.
+  @at-root label.form-item{
+    font-family: var(--font-heading);
+  }
+
+  select{
+    border: 0 !important;
+    width: 100%;
+    padding: 5px;
+    border: none;
+    color: inherit;
+    background: var(--color-section);
+    cursor: pointer;
+    option{
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-color: var(--color-section);
+    }
+
+    @at-root .list-table &{
+      background: none;
+      &:hover{
+        box-shadow: 0px 2px 1px var(--color-section);
+      }
+    }
+  }
+  fieldset{
+    border: none;
+    padding: 0 .5rem;
+  }
+
+  textarea{
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+
+// Toggle row filtering a server-rendered list (e.g. token classes on
+// user/tokens.hbs): checkboxes in a GET form that resubmits itself on change.
+.token-filters{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: .5rem 0;
+  > label{
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--font-heading);
+    opacity: 0.7;
+    cursor: pointer;
+  }
+}
+
+// Scope picker for token minting (user/tokens.hbs): one segmented slider per
+// scope family — a native radio group styled as one connected track. Levels
+// ascend none ⊂ read ⊂ write ⊂ admin: selecting a level fills the track with
+// solid gold from the origin up to that level (the fill IS the granted set);
+// the selected level carries an inset ring. The origin "○" clears the family.
+// Non-mintable levels render as inert hatched slots so columns stay aligned.
+.scope-slider{
+  // Family-name gutter and origin-cell widths, shared by header and lanes.
+  --scope-gutter: 84px;
+  --scope-origin: 20px;
+  --scope-lane-gap: 12px;
+  flex: 1 1 auto; //fill the input column of the parent .form-item
+  align-self: stretch; //…including when the collapsed form-item aligns to baseline
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+
+  .scope-slider-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 4px;
+  }
+  .scope-all{
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--font-heading);
+    opacity: 0.7;
+    cursor: pointer;
+  }
+  .scope-hint{
+    font-size: .7rem;
+    color: var(--color-highlight2);
+  }
+
+  // Column header: no title over the origin — it is self-explanatory ○.
+  .scope-head{
+    display: grid;
+    grid-template-columns: var(--scope-gutter) var(--scope-origin) repeat(3, 1fr);
+    column-gap: 0;
+    margin-left: var(--scope-lane-gap);
+    font-size: .65rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--color-highlight2);
+    > span{ text-align: center; }
+    .scope-head-origin{ grid-column: span 2; }
+  }
+
+  .scope-lane{
+    display: grid;
+    grid-template-columns: var(--scope-gutter) 1fr;
+    align-items: center;
+    gap: var(--scope-lane-gap);
+    padding: 4px 0;
+    margin: 0;
+    border: none;
+
+    legend{
+      float: left; //escape the fieldset's legend slot to become a regular grid item
+      font-family: var(--font-body);
+      font-size: .8rem;
+      color: var(--color-light);
+      opacity: 1;
+      //Neutralize the .form-item legend label-column sizing: here the legend
+      //is a grid cell, not the form's label column
+      min-width: 0;
+      padding: 0;
+    }
+  }
+
+  .scope-track{
+    display: flex;
+    align-items: stretch;
+    height: 30px;
+    background: var(--color-element);
+    border: 1px solid var(--color-highlight2);
+    border-radius: 4px;
+    overflow: hidden;
+
+    input{
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    // Undo the generic .form-item label styling (opacity .7 + heading font):
+    // the gold fill must read at full strength, in the body font.
+    .origin, .seg{
+      opacity: 1;
+      font-family: var(--font-body);
+    }
+
+    .origin{
+      flex: 0 0 var(--scope-origin);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      &::before{
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        border: 2px solid var(--color-highlight2);
+        box-sizing: border-box;
+        transition: border-color .12s, background .12s;
+      }
+      &:hover::before{ border-color: var(--color-light); }
+      &:has(input:checked)::before{
+        background: var(--color-highlight2);
+        border-color: var(--color-light);
+      }
+    }
+
+    .seg{
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      color: var(--color-highlight2);
+      cursor: pointer;
+      user-select: none;
+      border-left: 1px solid color-mix(in srgb, var(--color-highlight2) 45%, transparent);
+      transition: color .12s, background .12s;
+      &:hover{ color: var(--color-light); }
+    }
+
+    // The granted range is one continuous solid fill, origin → selected level…
+    .seg:has(input:checked),
+    .seg:has(~ .seg input:checked){
+      background: var(--color-primary);
+      color: var(--color-dark);
+      font-weight: 600;
+      border-left-color: color-mix(in srgb, var(--color-dark) 22%, transparent);
+    }
+    // …and the selected level is the peak: a subtle dark inset ring.
+    .seg:has(input:checked){
+      box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-dark) 42%, transparent);
+    }
+
+    .seg-missing{
+      cursor: not-allowed;
+      color: color-mix(in srgb, var(--color-highlight2) 65%, transparent);
+      background: repeating-linear-gradient(45deg,
+        transparent, transparent 4px,
+        color-mix(in srgb, var(--color-highlight2) 32%, transparent) 4px,
+        color-mix(in srgb, var(--color-highlight2) 32%, transparent) 5px);
+      &:hover{ color: color-mix(in srgb, var(--color-highlight2) 65%, transparent); }
+    }
+
+    .origin:has(input:focus-visible),
+    .seg:has(input:focus-visible){
+      outline: 1px dotted var(--color-primary);
+      outline-offset: -3px;
+    }
+
+    // "all" mode: the whole board is forced to its maximum and inert
+    &:has(input:disabled){
+      opacity: .55;
+      .origin, .seg{ cursor: not-allowed; }
+    }
+  }
+}
+
+// Phone-sized layouts give the form ~160-215px: tighten the family gutter and
+// abbreviate the level labels to their first letter (r / w / a) — full words
+// no longer fit inside the segments.
+@container (max-width: 300px) {
+  .scope-slider{
+    --scope-gutter: 3.5rem;
+    --scope-origin: 16px;
+    --scope-lane-gap: 6px;
+
+    .scope-lane legend{ font-size: .7rem; }
+    .scope-track .seg-label{
+      font-size: 0; //collapse the full word…
+      &::before{
+        content: attr(data-short); //…and show its abbreviation instead
+        font-size: .75rem;
+      }
+    }
+    .scope-head{
+      display: none; //lanes are self-labelled; the header no longer fits
+    }
+  }
+}
+
+//Checkbox that has a changing label depending of whether it's checked or not
+.checkbox-label{
+  display: none;
+  @at-root input[type="checkbox"]:checked ~ &.label-checked {
+    display: revert;
+  }
+  @at-root input[type="checkbox"]:not(:checked):not(:indeterminate) ~ &.label-unchecked {
+    display: revert;
+  }
+  @at-root input[type="checkbox"]:indeterminate ~ &.label-indeterminate {
+    display: revert;
+  }
+}
+

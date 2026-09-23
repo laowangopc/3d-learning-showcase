@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "ESNext"
+        ],
+        "module": "NodeNext",
+        "target": "ES2021",
+        "strict": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "sourceMap": true,
+        "types": [
+            "mocha",
+            "chai",
+            "chai-as-promised"
+        ],
+        "outDir": "./dist",
+        "rootDir": "."
+    },
+    "files": [
+        "index.ts",
+        "healthcheck.ts",
+        "./tasks/handlers/createDocumentFromFiles.ts"
+    ],
+    "include": [
+        "./**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "ts-node": {
+        "esm": true,
+        "files": true
+    }
+}
