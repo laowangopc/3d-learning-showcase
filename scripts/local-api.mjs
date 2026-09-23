@@ -2,7 +2,7 @@ import { runtimeUrl } from './runtime-paths.mjs';
 import {readFile} from 'node:fs/promises';
 import {collectResourcePages} from '../portal/catalog.mjs';
 import {setTimeout as delay} from 'node:timers/promises';
-export const base = process.env.ANATOMY_API_BASE || 'http://127.0.0.1:3080';
+export const base = process.env.SHOWCASE_API_BASE || process.env.ANATOMY_API_BASE || 'http://127.0.0.1:3080';
 export async function accounts() {return JSON.parse(await readFile(runtimeUrl('secrets/accounts.json'),'utf8'));}
 export class Client {
   cookies=new Map();

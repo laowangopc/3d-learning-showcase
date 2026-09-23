@@ -17,5 +17,5 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          ANATOMY_RUNTIME_ROOT: ${{ runner.temp }}/anatomy-unified
+          SHOWCASE_RUNTIME_ROOT: ${{ runner.temp }}/3d-learning-showcase
       - run: node --test scripts/catalog.test.mjs scripts/model-topic.test.mjs scripts/interaction.test.mjs

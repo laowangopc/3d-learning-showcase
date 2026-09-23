@@ -1,4 +1,4 @@
-name: anatomy-unified
+name: 3d-learning-showcase
 services:
   database:
     image: postgres:17@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
@@ -16,7 +16,7 @@ services:
       retries: 20
   app:
     build:
-      context: ${ANATOMY_RUNTIME_ROOT:?Set an absolute runtime directory}/build
+      context: ${SHOWCASE_RUNTIME_ROOT:?Set an absolute runtime directory}/build
     restart: unless-stopped
     ports:
       - '127.0.0.1:3080:8000'
@@ -48,7 +48,7 @@ services:
       retries: 10
 secrets:
   learning_setup_key:
-    file: ${ANATOMY_RUNTIME_ROOT}/secrets/setup-key.txt
+    file: ${SHOWCASE_RUNTIME_ROOT}/secrets/setup-key.txt
 volumes:
   database:
   files:

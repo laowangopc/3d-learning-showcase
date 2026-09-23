@@ -1,6 +1,6 @@
-# Anatomy Unified · 3D 教学观察台
+# 3D Learning Showcase · 3D 教学资源展示台
 
-面向教学的 3D 模型与 360° 全景观察平台。支持资源浏览、缩略图、标注、教师上传、管理员审核发布和账号管理。技术底座为 [Holusion/eCorpus](https://github.com/Holusion/eCorpus)；本仓库包含项目定制的前端、服务端源码、构建脚本及可公开的资源来源清单。
+汇集有教学价值的 3D 模型与 360° 全景，让用户在一个展示台中按主题浏览、交互观察并记录发现。人体器官只是资源分类之一；平台也涵盖自然科学、工程、文化与环境等主题。支持缩略图、标注、教师上传、管理员审核发布和账号管理。技术底座为 [Holusion/eCorpus](https://github.com/Holusion/eCorpus)；本仓库包含项目定制的前端、服务端源码、构建脚本及可公开的资源来源清单。
 
 > 此仓库是脱敏的源码发布版，不是现有站点的数据备份。生产数据库、用户账号、上传文件、正式教学资源的 3D/全景二进制素材、私密配置及内网部署记录均未公开。资源元数据的许可不等于模型文件的许可，使用前请逐项核对来源与署名。
 
@@ -19,13 +19,13 @@
 需要 Node.js 22+、Docker Compose，以及可访问 GHCR 的网络。下面的 Compose 只绑定 `127.0.0.1:3080`，不是公网部署配置。
 
 ```bash
-git clone https://github.com/laowangopc/anatomy-unified.git
-cd anatomy-unified
-export ANATOMY_RUNTIME_ROOT="${TMPDIR:-/tmp}/anatomy-unified-runtime"
+git clone https://github.com/laowangopc/3d-learning-showcase.git
+cd 3d-learning-showcase
+export SHOWCASE_RUNTIME_ROOT="${TMPDIR:-/tmp}/3d-learning-showcase-runtime"
 npm ci
 npm run prepare-local
 npm run build
-docker compose --env-file "$ANATOMY_RUNTIME_ROOT/.env" up -d --build
+docker compose --env-file "$SHOWCASE_RUNTIME_ROOT/.env" up -d --build
 node scripts/bootstrap.mjs
 ```
 

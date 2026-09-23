@@ -10,7 +10,7 @@ const category=process.env.COMMONS_CATEGORY||'Category:360° panoramas';
 const excludeCategory=process.env.COMMONS_EXCLUDE_CATEGORY;
 const root=runtimeUrl('materials-2000/'+folder+'/');
 for(const p of ['', 'assets/','records/'])await mkdir(new URL(p,root),{recursive:true});
-const ua='AnatomyUnified/1.0 (educational licensed panorama collection; Wikimedia Commons attribution retained)';
+const ua='ThreeDLearningShowcase/1.0 (educational licensed panorama collection; Wikimedia Commons attribution retained)';
 const hash=(b,a='sha256')=>createHash(a).update(b).digest('hex');
 const clean=s=>String(s??'').replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/[\u0000-\u001f]/g,' ').trim();
 async function save(url,value){const tmp=new URL(url.href+'.partial');await writeFile(tmp,JSON.stringify(value,null,2),'utf8');await rename(tmp,url);}

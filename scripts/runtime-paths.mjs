@@ -10,18 +10,18 @@ function directory(value, name) {
   mkdirSync(value, { recursive: true });
   return realpathSync(value);
 }
-export const runtimeRoot = directory(process.env.ANATOMY_RUNTIME_ROOT || path.join(os.tmpdir(), 'anatomy-unified'), 'ANATOMY_RUNTIME_ROOT');
+export const runtimeRoot = directory(process.env.SHOWCASE_RUNTIME_ROOT || process.env.ANATOMY_RUNTIME_ROOT || path.join(os.tmpdir(), '3d-learning-showcase'), 'SHOWCASE_RUNTIME_ROOT');
 if (runtimeRoot === sourceRoot || runtimeRoot.startsWith(sourceRoot + path.sep)) {
-  throw new Error('ANATOMY_RUNTIME_ROOT must be outside the source tree');
+  throw new Error('SHOWCASE_RUNTIME_ROOT must be outside the source tree');
 }
-export const dependencyRoot = directory(process.env.ANATOMY_DEPS_ROOT || path.join(sourceRoot, 'node_modules'), 'ANATOMY_DEPS_ROOT');
+export const dependencyRoot = directory(process.env.SHOWCASE_DEPS_ROOT || process.env.ANATOMY_DEPS_ROOT || path.join(sourceRoot, 'node_modules'), 'SHOWCASE_DEPS_ROOT');
 export const sourcePath = (...parts) => path.join(sourceRoot, ...parts);
 export const runtimePath = (...parts) => path.join(runtimeRoot, ...parts);
 export const sourceUrl = relative => pathToFileURL(sourcePath(relative));
 export function runtimeUrl(relative = '') {
   return pathToFileURL(runtimePath(relative) + ((!relative || /[\\/]$/.test(relative)) ? path.sep : ''));
 }
-const dependencyRequire = createRequire(path.join(dependencyRoot, '..', '__anatomy_dependency_anchor__.cjs'));
+const dependencyRequire = createRequire(path.join(dependencyRoot, '..', '__showcase_dependency_anchor__.cjs'));
 export function resolveDependency(name) {
   const file = dependencyRequire.resolve(name);
   const relative = path.relative(dependencyRoot, realpathSync(file));
@@ -30,6 +30,6 @@ export function resolveDependency(name) {
 }
 export function runtimeDependency(name) { return dependencyRequire(resolveDependency(name)); }
 export function composeArguments(...command) {
-  return ['compose', '-p', 'anatomy-unified', '--project-directory', runtimeRoot,
+  return ['compose', '-p', '3d-learning-showcase', '--project-directory', runtimeRoot,
     '--env-file', runtimePath('.env'), '-f', sourcePath('compose.yaml'), ...command];
 }
